@@ -16,5 +16,9 @@ set DIR=%cd%
 @call cmd /C "%EMSCRIPTENDIR:~0,2% && cd %EMSCRIPTENDIR% && emsdk_env.bat && %DIR:~0,2% && cd %DIR% && build.bat"
 cd ..
 
-rem @copy build\*.* ..\..\js /Y
-rem @copy build\*.* ..\..\..\dist\js /Y
+@copy build\*.* example\public\js /Y
+
+cd example
+npm run start
+cd ..
+

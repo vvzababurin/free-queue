@@ -1,0 +1,24 @@
+.ui-input {
+    padding: .4em .4em;
+    display: inline-block;
+    position: relative;
+    line-height: normal;
+    margin-right: .1em;
+    cursor: pointer;
+    vertical-align: middle;
+    text-align: left;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    /* Support: IE <= 11 */
+    overflow: visible;
+}
+.ui-input,
+.ui-input:link,
+.ui-input:visited,
+.ui-input:hover,
+.ui-input:active {
+    text-decoration: none;
+}

@@ -1,0 +1,40 @@
+{
+    "name": "FQ Test Server",
+    "version": "0.1.0",
+    "description": "webgpu newkind",
+    "main": "app.js",
+    "author": "Vyacheslav Zababurin && Zababurin Sergei",
+    "license": "LGPL-2.1",
+    "type": "module",
+    "private": "true",
+    "scripts": {
+        "start": "http-server -a 127.0.0.1 -p 8080",
+        "start:webpack": "webpack --config webpack/webpack.dev.mjs",
+        "build:webpack": "webpack --config webpack/webpack.prod.mjs"
+    },
+    "keywords": [
+        "webgpu",
+        "webgl",
+        "example",
+        "seed",
+        "types",
+        "typescript"
+    ],
+    "service": {
+        "publicUrl": "/"
+    },
+    "dependencies": {
+        "babel-loader": "^9.1.3",
+        "babel-polyfill": "^6.26.0",
+        "copy-webpack-plugin": "^12.0.2",
+        "html-webpack-plugin": "^5.6.0",
+        "http-server": "^14.1.1",
+        "path": "^0.12.7",
+        "remove-files-webpack-plugin": "^1.5.0",
+        "webpack": "^5.91.0",
+        "webpack-merge": "^5.10.0"
+    },
+    "devDependencies": {
+        "webpack-cli": "^5.1.4"
+    }
+}

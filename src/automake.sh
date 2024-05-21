@@ -4,10 +4,10 @@ export DIR=`pwd`
 
 export INSTALLDIR=../build
 
-export JS_FILE=free_queue.js
-export JS_FILE_TEMP=free_queue.js.temp
-export JS_FILE_PART=free_queue.js.part
-export JS_FILE_WASM=free_queue.wasm.js
+export JS_FILE=free-queue.js
+export JS_FILE_TEMP=free-queue.js.temp
+export JS_FILE_PART=free-queue.js.part
+export JS_FILE_WASM=free-queue.wasm.js
 
 if [ -f $JS_FILE ]; then
 	echo Delete existing file: $JS_FILE

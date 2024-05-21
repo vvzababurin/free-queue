@@ -1,0 +1,38 @@
+# Dependency directory
+.idea
+# Logs
+logs
+*.log
+/_sandbox
+/_sandbox_1
+npm-debug.log*
+# Runtime data
+pids
+*.pid
+*.seed
+*.ssh
+*.ppk
+v8-compile-cache-0/
+Thumbs.db
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons (http://nodejs.org/api/addons.html)
+bin
+# Personal Scripts
+*.ssh
+package-lock.json
+# Editors
+.vscode
+yarn.lock
+# Build Files
+temp
+*.map
+*.bc
+*.out
+node_modules
+**/node_modules/**
+/dist
+./dist
+.env

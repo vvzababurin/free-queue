@@ -11,5 +11,8 @@ export DIR=`pwd`
 sh ./build.sh
 cd ..
 
-# cp build/*.* ../../js
-# cp build/*.* ../../../dist/js
+cp build/*.* example/public/js
+
+cd example
+npm run start
+cd ..

@@ -6,10 +6,10 @@ set DIR=%cd%
 
 set INSTALLDIR=..\build
 
-set JS_FILE=free_queue.js
-set JS_FILE_TEMP=free_queue.js.temp
-set JS_FILE_PART=free_queue.js.part
-set JS_WASM_FILE=free_queue.wasm.js
+set JS_FILE=free-queue.js
+set JS_FILE_TEMP=free-queue.js.temp
+set JS_FILE_PART=free-queue.js.part
+set JS_WASM_FILE=free-queue.wasm.js
 
 if exist %JS_FILE% (
 	@echo Delete existing file: %JS_FILE%

@@ -13,11 +13,28 @@
     <script type="text/javascript" src="js/free-queue.js"></script>
     <script type="text/javascript" src="js/free-queue.wasm.js"></script>
 
-    <title>WasmFreeQueue Test Html page</title>
+    <title>WasmFreeQueue test html page</title>
     <style></style>
+    <script type="text/javascript">
+		jQuery(document).ready(function () {
+			window["markdown"].ready.then( function ( markdown ) {
+				window["run"]("markdown/README.md").ready.then( function ( source ) {
+					let outbuf = markdown.parse( source, {
+						bytes: false,
+						onCodeBlock(lang, body) {
+							return onCodeBlock(lang, body);
+						},
+					})
+					$("#markdown").html( outbuf );
+				});
+			});
+		});
+
+    </script>
 </head>
 
 <body>
+	test
 </body>
 </html>
 </html>

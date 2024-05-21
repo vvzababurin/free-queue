@@ -149,14 +149,15 @@ EMSCRIPTEN_KEEPALIVE void PrintQueueAddresses(struct FreeQueue *queue) {
       &queue->state[1], (size_t)&queue->state[1]);
 }
 
-static struct FreeQueue* instance = null;
+static struct FreeQueue* instance = nullptr;
 
-static struct FreeQueue* getInstance(size_t length = 1764, size_t channel_count = 2)
+EMSCRIPTEN_KEEPALIVE
+static struct FreeQueue* Instance(size_t length = 1764, size_t channel_count = 2)
 {
-	if ( instance != null ) {
+	if ( instance != nullptr ) {
 		return instance;		
 	} else { 
-		instance = CreateFreeQueue(size_t length, size_t channel_count);
+		instance = CreateFreeQueue(length, channel_count);
 	}
 	return instance;
 }

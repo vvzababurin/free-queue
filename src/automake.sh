@@ -1,46 +1,39 @@
 #!/bin/sh
 
-export CC=emcc
-
 export DIR=`pwd`
 
-export INSTALLDIR="../build"
-export SNDFILEDIR="libs/releasedir"
+export INSTALLDIR=../build
 
-export WASM_JS_LIBNAME=free-queue.js
-export WASM_JS_LIBNAME_PART=free-queue.js-part
-export WASM_JS_WASM_LIBNAME=free-queue.wasm
+export JS_FILE=free_queue.js
+export JS_FILE_TEMP=free_queue.js.temp
+export JS_FILE_PART=free_queue.js.part
+export JS_FILE_WASM=free_queue.wasm.js
 
-if [ -f $WASM_JS_LIBNAME ]; then
-	echo prepare: delete $WASM_JS_LIBNAME
-	rm $WASM_JS_LIBNAME
+if [ -f $JS_FILE ]; then
+	echo Delete existing file: $JS_FILE
+	rm $JS_FILE
 fi
 
-if [ -f $WASM_JS_WASM_LIBNAME ]; then
-	echo prepare: delete $WASM_JS_WASM_LIBNAME
-	rm $WASM_JS_WASM_LIBNAME
+if [ -f $JS_FILE_WASM ]; then
+	echo Delete existing file: $JS_FILE_WASM
+	rm $JS_FILE_WASM
 fi
 
-#-s MODULARIZE=1 \
-#-s EXPORT_ES6=1 \
+echo $CC: free_queue.cpp -Llib -I../include -Iinclude -pthread $EMCCFLAGS -o $JS_WASM_FILE
+$CC free_queue.cpp -Llib -I../include -Iinclude -pthread $EMCCFLAGS -o $JS_WASM_FILE
 
-#echo $CC: $CC free_queue.cpp -Llib -I../include -Iinclude -s SINGLE_FILE -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -s MODULARIZE=1 -s EXPORT_ES6=1 -s INVOKE_RUN=0 -s USE_ES6_IMPORT_META=1 -O3 -o $WASM_JS_LIBNAME
-#$CC free_queue.cpp -Llib -I../include -Iinclude -s SINGLE_FILE -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -s MODULARIZE=1 -s EXPORT_ES6=1  -s INVOKE_RUN=0 -s USE_ES6_IMPORT_META=1 -O3 -o $WASM_JS_LIBNAME
+# cat $JS_FILE_PART >> $JS_FILE
+cat $JS_FILE_PART >> $JS_FILE
 
-echo %CC%: free_queue.cpp -Llib -I../include -Iinclude -pthread -s ENVIRONMENT=worker -s MODULARIZE=1 -s EXPORTED_RUNTIME_METHODS=['callMain','ccall','cwrap'] -s INVOKE_RUN=0 -s EXPORT_NAME=FQC -s EXPORT_ES6=1 -O3 -o %WASM_JS_LIBNAME%
-$CC free_queue.cpp -Llib -I../include -Iinclude -pthread -s ENVIRONMENT=worker -s MODULARIZE=1 -s EXPORTED_RUNTIME_METHODS=['callMain','ccall','cwrap'] -s INVOKE_RUN=0 -s EXPORT_NAME=FQC -s EXPORT_ES6=1 -O3 -o %WASM_JS_LIBNAME%
+if [ -f $JS_FILE ]; then
+	echo Copy existing file: $DIR/$JS_FILE $INSTALLDIR/$JS_FILE
+	cp $DIR/$JS_FILE $INSTALLDIR/$JS_FILE
+fi
 
-
-# echo $CC: $CC free_queue.cpp -Llib -I../include -Iinclude -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -s MODULARIZE=1 -s EXPORT_ES6=1 -s INVOKE_RUN=0 -s USE_ES6_IMPORT_META=1 -O3 -o $WASM_JS_LIBNAME
-# $CC free_queue.cpp -Llib -I../include -Iinclude -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -s MODULARIZE=1 -s EXPORT_ES6=1 -s INVOKE_RUN=0 -s USE_ES6_IMPORT_META=1 -O3 -o $WASM_JS_LIBNAME
-
-#cat $WASM_JS_LIBNAME_PART >> $WASM_JS_LIBNAME
-
-echo Copy exesting file: $DIR/$WASM_JS_LIBNAME $INSTALLDIR/$WASM_JS_LIBNAME
-cp $DIR/$WASM_JS_LIBNAME $INSTALLDIR/$WASM_JS_LIBNAME
-
-echo Copy exesting file: $DIR/$WASM_JS_WASM_LIBNAME $INSTALLDIR/$WASM_JS_WASM_LIBNAME
-cp $DIR/$WASM_JS_WASM_LIBNAME $INSTALLDIR/$WASM_JS_WASM_LIBNAME
+if [ -f $JS_FILE_WASM ]; then
+	echo Copy existing file: $DIR/$JS_FILE_WASM $INSTALLDIR/$JS_FILE_WASM
+	cp $DIR/$JS_FILE_WASM $INSTALLDIR/$JS_FILE_WASM
+fi
 
 exit 0
 

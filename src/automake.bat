@@ -2,45 +2,41 @@
 
 setlocal enabledelayedexpansion
 
-set CC=emcc
-
 set DIR=%cd%
 
 set INSTALLDIR=..\build
 
-set WASM_JS_LIBNAME=free-queue.js
-set WASM_JS_LIBNAME_PART=free-queue.js-part
-set WASM_JS_WASM_LIBNAME=free-queue.wasm
+set JS_FILE=free_queue.js
+set JS_FILE_TEMP=free_queue.js.temp
+set JS_FILE_PART=free_queue.js.part
+set JS_WASM_FILE=free_queue.wasm.js
 
-if exist %WASM_JS_LIBNAME% (
-	@echo Delete existing file: %WASM_TEMP_JS_LIBNAME%
-	@del %WASM_JS_LIBNAME%
+if exist %JS_FILE% (
+	@echo Delete existing file: %JS_FILE%
+	@del %JS_FILE%
 )
 
-if exist %WASM_JS_WASM_LIBNAME% (
-	@echo Delete existing file: %WASM_JS_WASM_LIBNAME%
-	@del %WASM_JS_WASM_LIBNAME%
+if exist %JS_WASM_FILE% (
+	@echo Delete existing file: %JS_WASM_FILE%
+	@del %JS_WASM_FILE%
 )
 
-rem if not exist !CC! (
-rem 	echo prepare: !CC! WASM compiler is not present...
-rem 	exit /b 1
-rem )
+@echo %CC%: free_queue.cpp -Llib -I../include -Iinclude -pthread %EMCCFLAGS% -o %JS_WASM_FILE%
+@call %CC% free_queue.cpp -Llib -I../include -Iinclude -pthread %EMCCFLAGS% -o %JS_WASM_FILE%
 
-rem @echo %CC%: free_queue.cpp -Llib -I../include -Iinclude -s SINGLE_FILE -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -s INVOKE_RUN=0 -s USE_ES6_IMPORT_META=1 -O3 -o %WASM_JS_LIBNAME%
-rem @call %CC% free_queue.cpp -Llib -I../include -Iinclude -s SINGLE_FILE -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -s INVOKE_RUN=0 -s USE_ES6_IMPORT_META=1 -O3 -o %WASM_JS_LIBNAME%
+rem @type %JS_FILE_PART% >> %JS_FILE%
 
-@echo %CC%: free_queue.cpp -Llib -I../include -Iinclude -pthread -s ENVIRONMENT=worker -s MODULARIZE=1 -s EXPORTED_RUNTIME_METHODS=['callMain','ccall','cwrap'] -s INVOKE_RUN=0 -s EXPORT_NAME=FQC -s EXPORT_ES6=1 -O3 -o %WASM_JS_LIBNAME%
-@call %CC% free_queue.cpp -Llib -I../include -Iinclude -pthread -s ENVIRONMENT=worker -s MODULARIZE=1 -s EXPORTED_RUNTIME_METHODS=['callMain','ccall','cwrap'] -s INVOKE_RUN=0 -s EXPORT_NAME=FQC -s EXPORT_ES6=1 -O3 -o %WASM_JS_LIBNAME%
+@type %JS_FILE_PART% >> %JS_FILE%
 
-rem type %WASM_JS_LIBNAME_PART% >> %WASM_JS_LIBNAME%
+if exist %JS_FILE% (
+	@echo Copy existing file: %DIR%\%JS_FILE% %INSTALLDIR%\%JS_FILE% /Y
+	@copy %DIR%\%JS_FILE% %INSTALLDIR%\%JS_FILE% /Y
+)
 
-echo Copy exesting file: %DIR%\%WASM_JS_LIBNAME% %INSTALLDIR%\%WASM_JS_LIBNAME% /Y
-copy %DIR%\%WASM_JS_LIBNAME% %INSTALLDIR%\%WASM_JS_LIBNAME% /Y
-
-echo Copy exesting file: %DIR%\%WASM_JS_WASM_LIBNAME% %INSTALLDIR%\%WASM_JS_WASM_LIBNAME% /Y
-copy %DIR%\%WASM_JS_WASM_LIBNAME% %INSTALLDIR%\%WASM_JS_WASM_LIBNAME% /Y
-
+if exist %JS_WASM_FILE% (
+ 	@echo Copy existing file: %DIR%\%JS_WASM_FILE% %INSTALLDIR%\%JS_WASM_FILE% /Y
+	@copy %DIR%\%JS_WASM_FILE% %INSTALLDIR%\%JS_WASM_FILE% /Y
+)
 
 exit /b 0
 

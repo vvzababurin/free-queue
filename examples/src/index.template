@@ -23,19 +23,20 @@
 
 		Module.onRuntimeInitialized = () => { 
 
-			const __bufferlenght = 2000;
+			const __bufferlenght = 120000;
 			const __channelcount = 2;
 
 			var Instance = Module.cwrap('Instance','number',[ 'number', 'number' ]);
+
 			var GetFreeQueuePointers = Module.cwrap('GetFreeQueuePointers','number',[ 'number', 'string' ]);
-			var PrintQueueInfo = Module.cwrap('PrintQueueInfo','number',[ 'number' ]);
+			var PrintQueueInfo = Module.cwrap('PrintQueueInfo','',[ 'number' ]);
 			var CreateFreeQueue = Module.cwrap('CreateFreeQueue','number',[ 'number', 'number' ]);
 
-			window["instance"] = Instance( __bufferlenght, __channelcount );
+			window["instance"] = CreateFreeQueue( __bufferlenght, __channelcount );
 
 			////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Или можно так создать...
-			// window["instance"] = CreateFreeQueue( __bufferlenght, __channelcount );
+			// window["instance"] = Instance( __bufferlenght, __channelcount );
 
 			const queuePointers = new Object();
 
@@ -64,23 +65,30 @@
 				data1[1][i] = -i;
 			}
 
-			freeQueue.push( data1, 2000 );
+			let r = freeQueue.push( data1, 2000 );
+			console.log( "push: " + r );
+			
+			r = freeQueue.push( data1, 2000 );
+			console.log( "push: " + r );
+
+			r = freeQueue.push( data1, 2000 );
+			console.log( "push: " + r );
 
 			freeQueue.printAvailableReadAndWrite();
 
-			console.log( "data1: " + data1 );
+			console.log( "push data: " + data1 );
 
 			var data2 = [2];
-
 			data2[0] = new Float64Array(2000);
 			data2[1] = new Float64Array(2000);
 
-			let r = freeQueue.pull( data2, 2000 );
+			r = freeQueue.pull( data2, 2000 );
 			console.log( "pull: " + r );
 
-			console.log( "data2: " + data2 );
-
-			freeQueue.printAvailableReadAndWrite();
+			// console.log( freeQueue.channelData[0] );
+			// console.log( freeQueue.channelData[1] );
+			// PrintQueueInfo();
+			// freeQueue.printAvailableReadAndWrite();
 
 			var data3 = [2];
 
@@ -90,7 +98,14 @@
 			r = freeQueue.pull( data3, 2000 );
 			console.log( "pull: " + r );
 
-			console.log( "data3: " + data3 );
+			console.log( "pull data: " + data1 );
+
+			// console.log( freeQueue.channelData[0] );
+			// console.log( freeQueue.channelData[1] );
+			// PrintQueueInfo();
+
+			freeQueue.printAvailableReadAndWrite();
+
 		};
 
 		$('#startTest').click(function() {

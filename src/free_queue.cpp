@@ -55,9 +55,11 @@ extern "C" {
 EMSCRIPTEN_KEEPALIVE
 struct FreeQueue *CreateFreeQueue(size_t length, size_t channel_count) {
   struct FreeQueue *queue = (struct FreeQueue *)malloc(sizeof(struct FreeQueue));
+  
   queue->buffer_length = length + 1;
   queue->channel_count = channel_count;
   queue->state = (atomic_uint *)malloc(2 * sizeof(atomic_uint));
+
   atomic_store(queue->state + READ, 0);
   atomic_store(queue->state + WRITE, 0);
 
@@ -68,6 +70,7 @@ struct FreeQueue *CreateFreeQueue(size_t length, size_t channel_count) {
       queue->channel_data[i][j] = 0;
     }
   }
+
   return queue;
 }
 
@@ -158,7 +161,6 @@ void PrintQueueInfo(struct FreeQueue *queue) {
   printf("available_read: %u  | available_write: %u\n", 
       _getAvailableRead(queue, current_read, current_write), 
       _getAvailableWrite(queue, current_read, current_write));
-
   printf("----------\n");
 }
 

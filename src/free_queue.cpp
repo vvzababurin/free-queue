@@ -175,7 +175,7 @@ void PrintQueueAddresses(struct FreeQueue *queue) {
       &queue->state, (size_t)&queue->state);
   printf("channel_data    : %p   uint: %zu\n", 
       &queue->channel_data, (size_t)&queue->channel_data);
-
+      
   for (uint32_t channel = 0; channel < queue->channel_count; channel++) {
       printf("channel_data[%d]    : %p   uint: %zu\n", channel,
           &queue->channel_data[channel], (size_t)&queue->channel_data[channel]);

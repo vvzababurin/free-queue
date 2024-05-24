@@ -23,7 +23,7 @@
 
 		Module.onRuntimeInitialized = () => { 
 
-			const __bufferlenght = 120000;
+			const __bufferlenght = 282240;
 			const __channelcount = 2;
 
 			var Instance = Module.cwrap('Instance','number',[ 'number', 'number' ]);

@@ -73,8 +73,12 @@
 			r = freeQueue.push( data1, 2000 );
 			console.log( "push: " + r );
 			
+			freeQueue.printAvailableReadAndWrite();
+
 			r = freeQueue.push( data1, 2000 );
 			console.log( "push: " + r );
+
+			freeQueue.printAvailableReadAndWrite();
 
 			r = freeQueue.push( data1, 2000 );
 			console.log( "push: " + r );
@@ -93,7 +97,8 @@
 			// console.log( freeQueue.channelData[0] );
 			// console.log( freeQueue.channelData[1] );
 			// PrintQueueInfo();
-			// freeQueue.printAvailableReadAndWrite();
+
+			freeQueue.printAvailableReadAndWrite();
 
 			var data3 = [2];
 
@@ -108,8 +113,12 @@
 			r = freeQueue.pull( data3, 2000 );
 			console.log( "pull: " + r );
 
+			freeQueue.printAvailableReadAndWrite();
+
 			r = freeQueue.pull( data3, 2000 );
 			console.log( "pull: " + r );
+
+			freeQueue.printAvailableReadAndWrite();
 
 			r = freeQueue.pull( data3, 2000 );
 			console.log( "pull: " + r );

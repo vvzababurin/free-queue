@@ -29,8 +29,13 @@
 			var Instance = Module.cwrap('Instance','number',[ 'number', 'number' ]);
 			var GetFreeQueuePointers = Module.cwrap('GetFreeQueuePointers','number',[ 'number', 'string' ]);
 			var PrintQueueInfo = Module.cwrap('PrintQueueInfo','number',[ 'number' ]);
+			var CreateFreeQueue = Module.cwrap('CreateFreeQueue','number',[ 'number', 'number' ]);
 
 			window["instance"] = Instance( __bufferlenght, __channelcount );
+
+			////////////////////////////////////////////////////////////////////////////////////////////////////
+			// Или можно так создать...
+			// window["instance"] = CreateFreeQueue( __bufferlenght, __channelcount );
 
 			const queuePointers = new Object();
 

@@ -70,11 +70,22 @@
 			data2[0] = new Float64Array(2000);
 			data2[1] = new Float64Array(2000);
 
-			freeQueue.pull( data2, 2000 );
+			let r = freeQueue.pull( data2, 2000 );
+			console.log( "pull: " + r );
 
 			console.log( "data2: " + data2 );
 
 			freeQueue.printAvailableReadAndWrite();
+
+			var data3 = [2];
+
+			data3[0] = new Float64Array(2000);
+			data3[1] = new Float64Array(2000);
+
+			r = freeQueue.pull( data3, 2000 );
+			console.log( "pull: " + r );
+
+			console.log( "data3: " + data3 );
 		};
 
 		$('#startTest').click(function() {

@@ -1,6 +1,6 @@
 import path from 'path';
 
-const __dirname = './';
+const __dirname = './public';
 
 export default {
   devServer: {

@@ -11,8 +11,9 @@ export DIR=`pwd`
 sh ./build.sh
 cd ..
 
-cp build/*.* example/public/js
+cp build/*.* examples/src/js
 
-cd example
-npm run start
+cd examples
+npm run build:webpack
+npm run start:webpack
 cd ..

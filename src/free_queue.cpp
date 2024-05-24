@@ -1,9 +1,32 @@
 #include <emscripten.h>
-#include "free_queue.h"
+#include <stdatomic.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#define WASM_CODE_VERSION	"0.5.2"
+struct FreeQueue* instance = nullptr;
 
-static uint32_t _getAvailableRead(
+struct FreeQueue {
+  size_t buffer_length;
+  size_t channel_count;
+  double **channel_data;
+  atomic_uint *state;
+};
+
+/**
+ * An index set for shared state fields.
+ * @enum {number}
+ */
+enum FreeQueueState {
+  /** @type {number} A shared index for reading from the queue. (consumer) */
+  READ = 0,
+  /** @type {number} A shared index for writing into the queue. (producer) */
+  WRITE = 1
+};
+
+uint32_t _getAvailableRead(
   struct FreeQueue *queue, 
   uint32_t read_index, 
   uint32_t write_index
@@ -14,7 +37,7 @@ static uint32_t _getAvailableRead(
   return write_index + queue->buffer_length - read_index;
 }
 
-static uint32_t _getAvailableWrite(
+uint32_t _getAvailableWrite(
   struct FreeQueue *queue, 
   uint32_t read_index, 
   uint32_t write_index
@@ -24,6 +47,10 @@ static uint32_t _getAvailableWrite(
   
   return read_index - write_index - 1;
 }
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 EMSCRIPTEN_KEEPALIVE
 struct FreeQueue *CreateFreeQueue(size_t length, size_t channel_count) {
@@ -96,24 +123,25 @@ bool FreeQueuePull(struct FreeQueue *queue, double **output, size_t block_length
 }
 
 EMSCRIPTEN_KEEPALIVE
-void *GetFreeQueuePointers(struct FreeQueue *queue, char *data) {
+void *GetFreeQueuePointers( struct FreeQueue* queue, char* data ) 
+{
   if (strcmp(data, "buffer_length") == 0) {
-    return &queue->buffer_length;
+    return ( void* )&queue->buffer_length;
   }
   else if (strcmp(data, "channel_count") == 0) {
-    return &queue->channel_count;
-  }
-  else if (strcmp(data, "channel_data") == 0) {
-    return &queue->channel_data;
+    return ( void* )&queue->channel_count;
   }
   else if (strcmp(data, "state") == 0) {
-    return &queue->state;
+    return ( void* )&queue->state;
   }
-
+  else if (strcmp(data, "channel_data") == 0) {
+    return ( void* )&queue->channel_data;
+  }
   return 0;
 }
 
-EMSCRIPTEN_KEEPALIVE void PrintQueueInfo(struct FreeQueue *queue) {
+EMSCRIPTEN_KEEPALIVE 
+void PrintQueueInfo(struct FreeQueue *queue) {
   for (uint32_t channel = 0; channel < queue->channel_count; channel++) {
     printf("channel %d: ", channel);
     for (uint32_t i = 0; i < queue->buffer_length; i++) {
@@ -134,7 +162,8 @@ EMSCRIPTEN_KEEPALIVE void PrintQueueInfo(struct FreeQueue *queue) {
   printf("----------\n");
 }
 
-EMSCRIPTEN_KEEPALIVE void PrintQueueAddresses(struct FreeQueue *queue) {
+EMSCRIPTEN_KEEPALIVE 
+void PrintQueueAddresses(struct FreeQueue *queue) {
   printf("buffer_length: %p   uint: %zu\n", 
       &queue->buffer_length, (size_t)&queue->buffer_length);
   printf("channel_count: %p   uint: %zu\n", 
@@ -149,10 +178,8 @@ EMSCRIPTEN_KEEPALIVE void PrintQueueAddresses(struct FreeQueue *queue) {
       &queue->state[1], (size_t)&queue->state[1]);
 }
 
-static struct FreeQueue* instance = nullptr;
-
 EMSCRIPTEN_KEEPALIVE
-static struct FreeQueue* Instance(size_t length = 1764, size_t channel_count = 2)
+struct FreeQueue* Instance(size_t length = 1764, size_t channel_count = 2)
 {
 	if ( instance != nullptr ) {
 		return instance;		
@@ -162,7 +189,12 @@ static struct FreeQueue* Instance(size_t length = 1764, size_t channel_count = 2
 	return instance;
 }
 
+#ifdef __cplusplus
+}
+#endif
+
 int main( int argc, char* argv[] )
 {
+	printf( "FreeQueue wasm module is loaded..." );
 	return 0;
 }

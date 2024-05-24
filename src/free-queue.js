@@ -75,15 +75,20 @@ class FreeQueue {
    * @returns FreeQueue
    */
   static fromPointers(queuePointers) {
+
     const queue = new FreeQueue(0, 0);
+
     const HEAPU32 = new Uint32Array(queuePointers.memory.buffer);
     const HEAPF64 = new Float64Array(queuePointers.memory.buffer);
+
     const bufferLength = HEAPU32[queuePointers.bufferLengthPointer / 4];
     const channelCount = HEAPU32[queuePointers.channelCountPointer / 4];
+
     const states = HEAPU32.subarray(
         HEAPU32[queuePointers.statePointer / 4] / 4,
         HEAPU32[queuePointers.statePointer / 4] / 4 + 2
     );
+
     const channelData = [];
     for (let i = 0; i < channelCount; i++) {
       channelData.push(
@@ -94,6 +99,7 @@ class FreeQueue {
         )
       );
     }
+    
     queue.bufferLength = bufferLength;
     queue.channelCount = channelCount;
     queue.states = states;
@@ -231,4 +237,4 @@ class FreeQueue {
   }
 }
 
-export default FreeQueue;
+// export default FreeQueue;

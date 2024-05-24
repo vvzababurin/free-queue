@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <link href="js/themes/dark-hive/jquery-ui.css" rel="stylesheet" />
+    <link href="js/themes/dark-hive/theme.css" rel="stylesheet" />
+    <link href="js/jquery-ui-fix.css" rel="stylesheet" />
+
+    <script type="text/javascript" src="js/jquery-3.7.1.min.js"></script>
+
+    <script type="text/javascript" src="js/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-fix.js"></script>
+
+    <script type="text/javascript" src="js/free-queue.wasm.js"></script>
+    <script type="text/javascript" src="js/free-queue.js"></script>
+
+    <title>wasmFreeQueue test html page</title>
+    <style></style>
+    <script type="text/javascript">
+
+	jQuery(document).ready(function () {
+
+		Module.onRuntimeInitialized = () => { 
+
+			const __bufferlenght = 2000;
+			const __channelcount = 2;
+
+			var Instance = Module.cwrap('Instance','number',[ 'number', 'number' ]);
+			var GetFreeQueuePointers = Module.cwrap('GetFreeQueuePointers','number',[ 'number', 'string' ]);
+			var PrintQueueInfo = Module.cwrap('PrintQueueInfo','number',[ 'number' ]);
+
+			window["instance"] = Instance( __bufferlenght, __channelcount );
+
+			const queuePointers = new Object();
+
+			let v1 = GetFreeQueuePointers( window["instance"], "buffer_length" );
+			let v2 = GetFreeQueuePointers( window["instance"], "channel_count" );
+			let v3 = GetFreeQueuePointers( window["instance"], "state" );
+			let v4 = GetFreeQueuePointers( window["instance"], "channel_data" );
+
+			queuePointers.memory = Module.HEAPU8;
+			queuePointers.bufferLengthPointer = v1;
+			queuePointers.channelCountPointer = v2;
+			queuePointers.statePointer = v3;
+			queuePointers.channelDataPointer = v4;
+
+			var freeQueue = FreeQueue.fromPointers(queuePointers);
+
+			freeQueue.printAvailableReadAndWrite();
+
+			var data1 = [2];
+
+			data1[0] = new Float64Array(2000);
+			data1[1] = new Float64Array(2000);
+
+			for ( let i = 0; i < 2000; i++ ) {
+				data1[0][i] = i;
+				data1[1][i] = -i;
+			}
+
+			freeQueue.push( data1, 2000 );
+
+			freeQueue.printAvailableReadAndWrite();
+
+			console.log( "data1: " + data1 );
+
+			var data2 = [2];
+
+			data2[0] = new Float64Array(2000);
+			data2[1] = new Float64Array(2000);
+
+			freeQueue.pull( data2, 2000 );
+
+			console.log( "data2: " + data2 );
+
+			freeQueue.printAvailableReadAndWrite();
+		};
+
+		$('#startTest').click(function() {
+			var PrintQueueInfo = Module.cwrap('PrintQueueInfo','number',[ 'number' ]);
+			PrintQueueInfo( window["instance"] );
+		});
+		
+	});
+    </script>
+</head>
+
+<body>
+	<button id="startTest">some test</button>
+</body>
+
+</html>
+</html>

@@ -7,39 +7,38 @@ import RemoveWebpackPlugin from 'remove-files-webpack-plugin';
 
 const __dirname = './';
 
-const ASSET_PATH = './src/components'
 export default {
     entry: [ 'babel-polyfill', './src/app.mjs' ],
     experiments: {
         topLevelAwait: true
     },
+    performance: {
+      hints: false,
+      maxEntrypointSize: 512000,
+      maxAssetSize: 512000
+    },
     plugins: [
-      new webpack.DefinePlugin({
-        'process.env.ASSET_PATH': JSON.stringify(ASSET_PATH),
+      new HtmlWebpackPlugin({ 
+        title: 'WebGPU Test Page',
+        filename: 'index.html',
+        template: './src/index.template'
       }),
-//      new HtmlWebpackPlugin({ 
-//        title: 'WebGPU Test Page',
-//        filename: 'index.html',
-//        template: './src/index.template',
-//        font: 'fonts/segoeuil.ttf'
-//      }),
       new RemoveWebpackPlugin({
         before: {
           log: false,
           include: [ 'dist' ]
         }
       }),
-//      new CopyWebpackPlugin({ 
-//	patterns: [
+      new CopyWebpackPlugin({ 
+	patterns: [
 //          { from: path.resolve(__dirname, 'src', 'fonts'), to: path.resolve(__dirname, 'dist', 'fonts') },
-//          { from: path.resolve(__dirname, 'src', 'js'), to: path.resolve(__dirname, 'dist', 'js') },
+          { from: path.resolve(__dirname, 'src', 'js'), to: path.resolve(__dirname, 'dist', 'js') }
 //          { from: path.resolve(__dirname, 'src', 'assets'), to: path.resolve(__dirname, 'dist', 'assets') },
 //          { from: path.resolve(__dirname, 'src', 'addons'), to: path.resolve(__dirname, 'dist') },
 //          { from: path.resolve(__dirname, 'src', 'config'), to: path.resolve(__dirname, 'dist', 'config') },
 //          { from: path.resolve(__dirname, 'src', 'sounds'), to: path.resolve(__dirname, 'dist', 'sounds') }
-//        ]
-//      })
-//      new webpack.HotModuleReplacementPlugin(),
+        ]
+      })
     ],
     output: {
       path: path.resolve(__dirname, 'dist'),
@@ -65,7 +64,7 @@ export default {
       },
       { 
         test: /\.wgsl/,
-        type: 'asset/source' 
+        type: 'asset/source'
       },
       { 
         test: /\.(eot|svg|ttf|woff|woff2)$/,

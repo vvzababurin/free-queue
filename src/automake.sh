@@ -19,8 +19,8 @@ if [ -f $JS_FILE_WASM ]; then
 	rm $JS_FILE_WASM
 fi
 
-echo $CC: free_queue.cpp -Llib -I../include -Iinclude -pthread $EMCCFLAGS -o $JS_WASM_FILE
-$CC free_queue.cpp -Llib -I../include -Iinclude -pthread $EMCCFLAGS -o $JS_WASM_FILE
+echo $CC: free_queue.cpp -Llib -I../include -Iinclude -pthread $EMCCFLAGS -o $JS_FILE_WASM
+$CC free_queue.cpp -Llib -I../include -Iinclude -pthread $EMCCFLAGS -o $JS_FILE_WASM
 
 # cat $JS_FILE_PART >> $JS_FILE
 cat $JS_FILE_PART >> $JS_FILE

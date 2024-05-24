@@ -6,8 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct FreeQueue* instance = nullptr;
-
 struct FreeQueue {
   size_t buffer_length;
   size_t channel_count;
@@ -175,7 +173,7 @@ void PrintQueueAddresses(struct FreeQueue *queue) {
       &queue->state, (size_t)&queue->state);
   printf("channel_data    : %p   uint: %zu\n", 
       &queue->channel_data, (size_t)&queue->channel_data);
-      
+
   for (uint32_t channel = 0; channel < queue->channel_count; channel++) {
       printf("channel_data[%d]    : %p   uint: %zu\n", channel,
           &queue->channel_data[channel], (size_t)&queue->channel_data[channel]);
@@ -185,17 +183,6 @@ void PrintQueueAddresses(struct FreeQueue *queue) {
       &queue->state[0], (size_t)&queue->state[0]);
   printf("state[1]    : %p   uint: %zu\n", 
       &queue->state[1], (size_t)&queue->state[1]);
-}
-
-EMSCRIPTEN_KEEPALIVE
-struct FreeQueue* Instance(size_t length = 1764, size_t channel_count = 2)
-{
-	if ( instance != nullptr ) {
-		return instance;		
-	} else { 
-		instance = CreateFreeQueue(length, channel_count);
-	}
-	return instance;
 }
 
 #ifdef __cplusplus

@@ -26,18 +26,12 @@
 			const __bufferlenght = 282240;
 			const __channelcount = 2;
 
-			var Instance = Module.cwrap('Instance','number',[ 'number', 'number' ]);
-
 			var GetFreeQueuePointers = Module.cwrap('GetFreeQueuePointers','number',[ 'number', 'string' ]);
 			var PrintQueueInfo = Module.cwrap('PrintQueueInfo','',[ 'number' ]);
 			var PrintQueueAddresses = Module.cwrap('PrintQueueAddresses','',[ 'number' ]);
 			var CreateFreeQueue = Module.cwrap('CreateFreeQueue','number',[ 'number', 'number' ]);
 
 			window["instance"] = CreateFreeQueue( __bufferlenght, __channelcount );
-
-			////////////////////////////////////////////////////////////////////////////////////////////////////
-			// Или можно так создать...
-			// window["instance"] = Instance( __bufferlenght, __channelcount );
 
 			const queuePointers = new Object();
 

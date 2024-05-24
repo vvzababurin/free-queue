@@ -30,6 +30,7 @@
 
 			var GetFreeQueuePointers = Module.cwrap('GetFreeQueuePointers','number',[ 'number', 'string' ]);
 			var PrintQueueInfo = Module.cwrap('PrintQueueInfo','',[ 'number' ]);
+			var PrintQueueAddresses = Module.cwrap('PrintQueueAddresses','',[ 'number' ]);
 			var CreateFreeQueue = Module.cwrap('CreateFreeQueue','number',[ 'number', 'number' ]);
 
 			window["instance"] = CreateFreeQueue( __bufferlenght, __channelcount );
@@ -51,6 +52,8 @@
 			queuePointers.statePointer = v3;
 			queuePointers.channelDataPointer = v4;
 
+			PrintQueueAddresses( window["instance"] );
+			
 			var freeQueue = FreeQueue.fromPointers(queuePointers);
 
 			freeQueue.printAvailableReadAndWrite();

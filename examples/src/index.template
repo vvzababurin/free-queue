@@ -65,7 +65,9 @@
 				data1[1][i] = -i;
 			}
 
-			let r = freeQueue.push( data1, 2000 );
+			let r = false;
+
+			r = freeQueue.push( data1, 2000 );
 			console.log( "push: " + r );
 			
 			r = freeQueue.push( data1, 2000 );
@@ -99,6 +101,15 @@
 			console.log( "pull: " + r );
 
 			console.log( "pull data: " + data1 );
+
+			r = freeQueue.pull( data3, 2000 );
+			console.log( "pull: " + r );
+
+			r = freeQueue.pull( data3, 2000 );
+			console.log( "pull: " + r );
+
+			r = freeQueue.pull( data3, 2000 );
+			console.log( "pull: " + r );
 
 			// console.log( freeQueue.channelData[0] );
 			// console.log( freeQueue.channelData[1] );

@@ -5,6 +5,8 @@
         "xutility": "cpp",
         "atomic": "cpp",
         "xtr1common": "cpp",
-        "type_traits": "cpp"
+        "type_traits": "cpp",
+        "thread": "cpp",
+        "list": "cpp"
     }
 }

@@ -7,7 +7,7 @@ rem Emscripten SDK...
 set EMSCRIPTENDIR=c:/emscripten/emsdk
 
 set CC=emcc
-set EMCCFLAGS=-s SINGLE_FILE=1 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -s INVOKE_RUN=0 -O3
+set EMCCFLAGS=-s SINGLE_FILE=1 -s TOTAL_MEMORY=100MB -s ALLOW_MEMORY_GROWTH=0 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -s INVOKE_RUN=1 -O3
 
 cd src
 set DIR=%cd%

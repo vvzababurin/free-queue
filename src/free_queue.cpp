@@ -5,12 +5,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
+#include <unistd.h> 
+
+int treads_busy = 1;
+
+pthread_t tid_consumer = 0;
+pthread_t tid_producer = 0;
 
 struct FreeQueue {
   size_t buffer_length;
   size_t channel_count;
   double **channel_data;
   atomic_uint *state;
+};
+
+struct ThreadFreeQueue {
+  struct FreeQueue* instance;
+  int busy;
 };
 
 /**
@@ -173,12 +185,10 @@ void PrintQueueAddresses(struct FreeQueue *queue) {
       &queue->state, (size_t)&queue->state);
   printf("channel_data    : %p   uint: %zu\n", 
       &queue->channel_data, (size_t)&queue->channel_data);
-
   for (uint32_t channel = 0; channel < queue->channel_count; channel++) {
       printf("channel_data[%d]    : %p   uint: %zu\n", channel,
           &queue->channel_data[channel], (size_t)&queue->channel_data[channel]);
   }
-
   printf("state[0]    : %p   uint: %zu\n", 
       &queue->state[0], (size_t)&queue->state[0]);
   printf("state[1]    : %p   uint: %zu\n", 
@@ -189,8 +199,90 @@ void PrintQueueAddresses(struct FreeQueue *queue) {
 }
 #endif
 
+static pthread_mutex_t tasks_mutex = PTHREAD_MUTEX_INITIALIZER;
+struct ThreadFreeQueue memorydata;
+
+// store data
+void *producer( void *arg ) {
+  struct ThreadFreeQueue* f = (struct ThreadFreeQueue*)arg;
+  while ( f->busy ) {
+    double** input = (double **)malloc(channel_count * sizeof(double *));
+    for (int i = 0; i < channel_count; i++) {
+      input[i] = (double *)malloc(buffer_length * sizeof(double));
+      for (int j = 0; j < buffer_length; j++) {
+        input[i][j] = ( i % 2 ) ? -j : j;
+      }
+    }
+    pthread_mutex_lock( &tasks_mutex );
+      
+    bool ret = FreeQueuePush(instance, input, buffer_length);
+    if ( ret ) printf( "FreeQueuePush: %s\n", ( ret ) ? "true" : "false" );
+
+    PrintQueueInfo( instance );
+
+    pthread_mutex_unlock( &tasks_mutex );
+    for (int i = 0; i < channel_count; i++) {
+        free( input[i] );
+    }
+    free( input );
+
+    usleep( 1000000 );
+  }  
+}
+
+// load data
+void *consumer( void *arg ){
+  struct ThreadFreeQueue* f = (struct ThreadFreeQueue*)arg;
+  while ( f->busy ) {
+    double** output = (double **)malloc(channel_count * sizeof(double *));
+    for (int i = 0; i < channel_count; i++) {
+      output[i] = (double *)malloc(buffer_length * sizeof(double));
+      for (int j = 0; j < buffer_length; j++) {
+        output[i][j] = 0;
+      }
+    }    
+    pthread_mutex_lock( &tasks_mutex );
+
+    bool ret = FreeQueuePull(f->instance, output, buffer_length);
+    if ( ret ) printf( "FreeQueuePull: %s\n", ( ret ) ? "true" : "false" );
+
+    PrintQueueInfo( instance );
+
+    pthread_mutex_unlock( &tasks_mutex );
+    for (int i = 0; i < channel_count; i++) {
+        free( output[i] );
+    }
+    free( output );
+
+    usleep( 1000000 );
+  }  
+  return 0;
+}
+
 int main( int argc, char* argv[] )
 {
-	printf( "FreeQueue wasm module is loaded..." );
-	return 0;
+  uint32_t channel_count = 2;
+  uint32_t buffer_length = 2000;
+
+  memorydata.busy = 1;
+  memorydata.instance = CreateFreeQueue( buffer_length * 25 * 20, channel_count );
+
+  int p = 0;
+
+  p = pthread_create( &tid_consumer, 0, consumer, &memorydata );
+  if ( p ) {
+    return -1;
+  }
+  p = pthread_create( &tid_producer, 0, producer, &memorydata );
+  if ( p ) {
+    return -1;
+  }
+
+  pthread_join(tid_producer, 0);
+  pthread_join(tid_consumer, 0);
+
+  DestroyFreeQueue( instance );
+  
+  return 0;
 }
+

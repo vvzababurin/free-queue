@@ -22,34 +22,11 @@
 	jQuery(document).ready(function () {
 
 		Module.onRuntimeInitialized = () => { 
-
-			const __bufferlenght = 282240;
+/*
+			const __bufferlength = 282240;
 			const __channelcount = 2;
 
-			var GetFreeQueuePointers = Module.cwrap('GetFreeQueuePointers','number',[ 'number', 'string' ]);
-			var PrintQueueInfo = Module.cwrap('PrintQueueInfo','',[ 'number' ]);
-			var PrintQueueAddresses = Module.cwrap('PrintQueueAddresses','',[ 'number' ]);
-			var CreateFreeQueue = Module.cwrap('CreateFreeQueue','number',[ 'number', 'number' ]);
-
-			window["instance"] = CreateFreeQueue( __bufferlenght, __channelcount );
-
-			const queuePointers = new Object();
-
-			let v1 = GetFreeQueuePointers( window["instance"], "buffer_length" );
-			let v2 = GetFreeQueuePointers( window["instance"], "channel_count" );
-			let v3 = GetFreeQueuePointers( window["instance"], "state" );
-			let v4 = GetFreeQueuePointers( window["instance"], "channel_data" );
-
-			queuePointers.memory = Module.HEAPU8;
-			queuePointers.bufferLengthPointer = v1;
-			queuePointers.channelCountPointer = v2;
-			queuePointers.statePointer = v3;
-			queuePointers.channelDataPointer = v4;
-
-			PrintQueueAddresses( window["instance"] );
-			
-			var freeQueue = FreeQueue.fromPointers(queuePointers);
-
+			const freeQueue = new FreeQueue(__bufferlength, __channelcount);
 			freeQueue.printAvailableReadAndWrite();
 
 			var data1 = [2];
@@ -122,7 +99,7 @@
 			// PrintQueueInfo();
 
 			freeQueue.printAvailableReadAndWrite();
-
+*/
 		};
 
 		$('#startTest').click(function() {

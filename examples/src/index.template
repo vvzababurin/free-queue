@@ -103,8 +103,8 @@
 		};
 
 		$('#startTest').click(function() {
-			var PrintQueueInfo = Module.cwrap('PrintQueueInfo','number',[ 'number' ]);
-			PrintQueueInfo( window["instance"] );
+			var DestroyThreads = Module.cwrap('DestroyThreads','',[ '' ]);
+			DestroyThreads();
 		});
 		
 	});
@@ -112,7 +112,7 @@
 </head>
 
 <body>
-	<button id="startTest">some test</button>
+	<button id="startTest">DestroyThreads</button>
 </body>
 
 </html>

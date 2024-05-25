@@ -7,6 +7,7 @@
         "xtr1common": "cpp",
         "type_traits": "cpp",
         "thread": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "memory": "cpp"
     }
 }

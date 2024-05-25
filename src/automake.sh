@@ -8,10 +8,16 @@ export JS_FILE=free-queue.js
 export JS_FILE_TEMP=free-queue.js.temp
 export JS_FILE_PART=free-queue.js.part
 export JS_FILE_WASM=free-queue.wasm.js
+export JS_WASM_WORKER_FILE=free-queue.wasm.worker.js
 
 if [ -f $JS_FILE ]; then
 	echo Delete existing file: $JS_FILE
 	rm $JS_FILE
+fi
+
+if [ -f $JS_WASM_WORKER_FILE ]; then
+	echo Delete existing file: $JS_WASM_WORKER_FILE
+	rm $JS_WASM_WORKER_FILE
 fi
 
 if [ -f $JS_FILE_WASM ]; then
@@ -33,6 +39,11 @@ fi
 if [ -f $JS_FILE_WASM ]; then
 	echo Copy existing file: $DIR/$JS_FILE_WASM $INSTALLDIR/$JS_FILE_WASM
 	cp $DIR/$JS_FILE_WASM $INSTALLDIR/$JS_FILE_WASM
+fi
+
+if [ -f $JS_WASM_WORKER_FILE ]; then
+	echo Copy existing file: $DIR/$JS_WASM_WORKER_FILE $INSTALLDIR/$JS_WASM_WORKER_FILE
+	cp $DIR/$JS_WASM_WORKER_FILE $INSTALLDIR/$JS_WASM_WORKER_FILE
 fi
 
 exit 0

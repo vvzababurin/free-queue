@@ -22,97 +22,66 @@
 	jQuery(document).ready(function () {
 
 		Module.onRuntimeInitialized = () => { 
-/*
-			const __bufferlength = 282240;
-			const __channelcount = 2;
 
-			const freeQueue = new FreeQueue(__bufferlength, __channelcount);
-			freeQueue.printAvailableReadAndWrite();
+			window["Module"].callMain("");
 
-			var data1 = [2];
+			const GetFreeQueueThreads = window["Module"].cwrap('GetFreeQueueThreads','number',[ '' ]);
+			const GetFreeQueuePointers = window["Module"].cwrap('GetFreeQueuePointers','number',[ 'number', 'string' ]);
+			const PrintQueueInfo = window["Module"].cwrap('PrintQueueInfo','',[ 'number' ]);
+			const CreateFreeQueue = window["Module"].cwrap('CreateFreeQueue','number',[ 'number', 'number' ]);
+			const PrintQueueAddresses = window["Module"].cwrap('PrintQueueAddresses','',[ 'number' ]);
 
-			data1[0] = new Float64Array(2000);
-			data1[1] = new Float64Array(2000);
+			window["instance"] = GetFreeQueueThreads();
 
-			for ( let i = 0; i < 2000; i++ ) {
-				data1[0][i] = i + 0.00005;
-				data1[1][i] = -i - 0.00005;
-			}
+			const bufferLengthPtr = GetFreeQueuePointers( window["instance"], "buffer_length" );
+			const channelCountPtr = GetFreeQueuePointers( window["instance"], "channel_count" );
+			const statePtr = GetFreeQueuePointers( window["instance"], "state" );
+			const channelDataPtr = GetFreeQueuePointers( window["instance"], "channel_data" );
 
-			let r = false;
+			const pointers = new Object();
 
-			r = freeQueue.push( data1, 2000 );
-			console.log( "push: " + r );
+			pointers.memory = window["Module"].HEAPU8;
+			pointers.bufferLengthPointer = bufferLengthPtr;
+			pointers.channelCountPointer = channelCountPtr;
+			pointers.statePointer = statePtr;
+			pointers.channelDataPointer = channelDataPtr;
+
+			window["FreeQueue"] = FreeQueue.fromPointers( pointers );
+			window["FreeQueue"].printAvailableReadAndWrite();
 			
-			freeQueue.printAvailableReadAndWrite();
-
-			r = freeQueue.push( data1, 2000 );
-			console.log( "push: " + r );
-
-			freeQueue.printAvailableReadAndWrite();
-
-			r = freeQueue.push( data1, 2000 );
-			console.log( "push: " + r );
-
-			freeQueue.printAvailableReadAndWrite();
-
-			console.log( "push data: " + data1 );
-
-			var data2 = [2];
-			data2[0] = new Float64Array(2000);
-			data2[1] = new Float64Array(2000);
-
-			r = freeQueue.pull( data2, 2000 );
-			console.log( "pull: " + r );
-
-			// console.log( freeQueue.channelData[0] );
-			// console.log( freeQueue.channelData[1] );
-			// PrintQueueInfo();
-
-			freeQueue.printAvailableReadAndWrite();
-
-			var data3 = [2];
-
-			data3[0] = new Float64Array(2000);
-			data3[1] = new Float64Array(2000);
-
-			r = freeQueue.pull( data3, 2000 );
-			console.log( "pull: " + r );
-
-			console.log( "pull data: " + data1 );
-
-			r = freeQueue.pull( data3, 2000 );
-			console.log( "pull: " + r );
-
-			freeQueue.printAvailableReadAndWrite();
-
-			r = freeQueue.pull( data3, 2000 );
-			console.log( "pull: " + r );
-
-			freeQueue.printAvailableReadAndWrite();
-
-			r = freeQueue.pull( data3, 2000 );
-			console.log( "pull: " + r );
-
-			// console.log( freeQueue.channelData[0] );
-			// console.log( freeQueue.channelData[1] );
-			// PrintQueueInfo();
-
-			freeQueue.printAvailableReadAndWrite();
-*/
 		};
 
-		$('#startTest').click(function() {
-			var DestroyThreads = Module.cwrap('DestroyThreads','',[ '' ]);
-			DestroyThreads();
+		$('#startTest1').click(function() {
+			const DestroyFreeQueueThreads = Module.cwrap('DestroyFreeQueueThreads','',[ '' ]);
+			DestroyFreeQueueThreads();
 		});
-		
+
+		$('#startTest2').click(function() {
+			const PrintQueueInfo = window["Module"].cwrap('PrintQueueInfo','',[ 'number' ]);
+			PrintQueueInfo( window["instance"] );
+			window["FreeQueue"].printAvailableReadAndWrite();
+		});
+
+		$('#startTest3').click(function() {
+			const PrintQueueInfo = window["Module"].cwrap('PrintQueueInfo','',[ 'number' ]);
+			PrintQueueInfo( window["instance"] );
+
+			const d = [2];
+			d[0] = new Float64Array(1764);
+			d[1] = new Float64Array(1764);
+
+			const r = window["FreeQueue"].pull( d, 1764 );
+			console.log( "pull: " + r );
+			console.log( "pull data: " + d );
+		});
 	});
     </script>
 </head>
 
 <body>
-	<button id="startTest">DestroyThreads</button>
+	<button id="startTest1">DestroyThreads</button>
+	<button id="startTest2">PrintVarStack</button>
+	<button id="startTest3">PullData</button>
 </body>
 
 </html>

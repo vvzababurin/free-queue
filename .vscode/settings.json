@@ -8,6 +8,7 @@
         "type_traits": "cpp",
         "thread": "cpp",
         "list": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "iosfwd": "cpp"
     }
 }

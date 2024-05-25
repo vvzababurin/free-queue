@@ -20,7 +20,7 @@ struct FreeQueue {
   atomic_uint *state;
 };
 
-struct ThreadFreeQueue {
+struct FreeQueueThread {
   struct FreeQueue* instance;
   int busy;
 };
@@ -40,7 +40,7 @@ void *producer( void *arg );
 void *consumer( void *arg );
 
 static pthread_mutex_t tasks_mutex = PTHREAD_MUTEX_INITIALIZER;
-static struct ThreadFreeQueue memorydata;
+static struct FreeQueueThread memorydata;
 
 uint32_t _getAvailableRead(
   struct FreeQueue *queue, 
@@ -160,7 +160,7 @@ void *GetFreeQueuePointers( struct FreeQueue* queue, char* data )
 }
 
 EMSCRIPTEN_KEEPALIVE 
-void DestroyThreads() {
+void DestroyFreeQueueThreads() {
   if ( memorydata.instance != nullptr )
   {
     memorydata.busy = 0;
@@ -174,36 +174,38 @@ void DestroyThreads() {
 }
 
 EMSCRIPTEN_KEEPALIVE 
+struct FreeQueue *GetFreeQueueThreads() {
+  if ( memorydata.instance != nullptr )
+  {
+    return memorydata.instance;
+  }
+  return nullptr;
+}
+
+EMSCRIPTEN_KEEPALIVE 
 int CreateFreeQueueThreads() {
   uint32_t channel_count = 2;
   uint32_t length = 1764;
-
   memorydata.busy = 1;
   memorydata.instance = CreateFreeQueue( length * 500, channel_count );
-
   int p = 0;
-
   p = pthread_create( &tid_consumer, 0, consumer, &memorydata );
   if ( p ) {
     return -1;
   }
   printf( "CreateThreads: consumer thread created...\n" );
-
   p = pthread_create( &tid_producer, 0, producer, &memorydata );
   if ( p ) {
     return -1;
   }
   printf( "CreateThreads: producer thread created...\n" );
-
   return 1;
 }
 
 EMSCRIPTEN_KEEPALIVE 
 void PrintQueueInfo(struct FreeQueue *queue) {
-
   uint32_t current_read = atomic_load(queue->state + READ);
   uint32_t current_write = atomic_load(queue->state + WRITE);
-
   for (uint32_t channel = 0; channel < queue->channel_count; channel++) {
     printf("channel %d: ", channel);
     for (uint32_t i = 0; i < queue->buffer_length; i++) {
@@ -211,7 +213,6 @@ void PrintQueueInfo(struct FreeQueue *queue) {
     }
     printf("\n");
   }
-
   printf("----------\n");
   printf("current_read: %u  | current_write: %u\n", current_read, current_write);
   printf("available_read: %u  | available_write: %u\n", 
@@ -247,49 +248,38 @@ void PrintQueueAddresses(struct FreeQueue *queue) {
 // store data
 void *producer( void *arg ) 
 {
-  struct ThreadFreeQueue* f = (struct ThreadFreeQueue*)arg;
-  
-  uint32_t channel_count = f->instance->channel_count;
-  uint32_t buffer_length = f->instance->buffer_length;
+  struct FreeQueueThread* f = (struct FreeQueueThread*)arg;
+  struct FreeQueue* instance = f->instance;
+  uint32_t channel_count = instance->channel_count;
+  uint32_t buffer_length = instance->buffer_length;
   uint32_t length = 1764;
-
   printf( "producer: [ buffer length is %d; channel count is %d ]\n", buffer_length, channel_count );
-
-  while ( f->busy ) 
-  {  
+  while ( f->busy ) {  
     double** input = (double **)malloc(channel_count * sizeof(double *));
     for (int i = 0; i < channel_count; i++) {
       input[i] = (double *)malloc(length * sizeof(double));
       for (int j = 0; j < length; j++) {
-        input[i][j] = ( i % 2 ) ? -j : j;
+        input[i][j] = ( i % 2 ) ? -rand() : rand();
       }
     }
-
-    uint32_t current_read = atomic_load(f->instance->state + READ);
-    uint32_t current_write = atomic_load(f->instance->state + WRITE);
-
-    //while( current_read < length * 350 )
-    {
-      current_read = atomic_load(f->instance->state + READ);
-      current_write = atomic_load(f->instance->state + WRITE);
-
+    uint32_t current_read = atomic_load(instance->state + READ);
+    uint32_t current_write = atomic_load(instance->state + WRITE);
+    //while( current_read < length * 350 ) 
+    { 
+      current_read = atomic_load(instance->state + READ);
+      current_write = atomic_load(instance->state + WRITE);
       pthread_mutex_lock( &tasks_mutex );
-
-      printf( "producer: [ read is %d; write is %d ]\n", current_read, current_write );
-      printf( "producer: [ length is %d ]\n", length );
-
+      //printf( "producer: [ read is %d; write is %d ]\n", current_read, current_write );
+      //printf( "producer: [ length is %d ]\n", length );
       ////////////////////////////////////////////////////////////////////////////////////////
-      bool rc = FreeQueuePush(f->instance, input, length);
-      printf( "FreeQueuePush: %s\n", ( rc == true ) ? "true" : "false" );
+      bool rc = FreeQueuePush(instance, input, length);
+      //printf( "FreeQueuePush: %s\n", ( rc == true ) ? "true" : "false" );
       ////////////////////////////////////////////////////////////////////////////////////////
-
       pthread_mutex_unlock( &tasks_mutex );
     }
-
     for (int i = 0; i < channel_count; i++) free( input[i] );
     free( input );
   }  
-
   printf( "producer: exit thread\n" );
   return 0;
 }
@@ -297,14 +287,12 @@ void *producer( void *arg )
 // load data
 void *consumer( void *arg )
 {
-  struct ThreadFreeQueue* f = (struct ThreadFreeQueue*)arg;
-
-  uint32_t channel_count = f->instance->channel_count;
-  uint32_t buffer_length = f->instance->buffer_length;
+  struct FreeQueueThread* f = (struct FreeQueueThread*)arg;
+  struct FreeQueue* instance = f->instance;
+  uint32_t channel_count = instance->channel_count;
+  uint32_t buffer_length = instance->buffer_length;
   uint32_t length = 1764;
-
   printf( "consumer: [ buffer length is %d; channel count is %d ]\n", buffer_length, channel_count );
-
   while ( f->busy ) 
   {
     double** output = (double **)malloc(channel_count * sizeof(double *));
@@ -314,36 +302,27 @@ void *consumer( void *arg )
         output[i][j] = 0;
       }
     }    
-
-    uint32_t current_read = atomic_load(f->instance->state + READ);
-    uint32_t current_write = atomic_load(f->instance->state + WRITE);
-
-    //if( current_read >= length && f->busy )
+    uint32_t current_read = atomic_load(instance->state + READ);
+    uint32_t current_write = atomic_load(instance->state + WRITE);
+    while( current_read > length ) 
     {
-      current_read = atomic_load(f->instance->state + READ);
-      current_write = atomic_load(f->instance->state + WRITE);
-
+      current_read = atomic_load(instance->state + READ);
+      current_write = atomic_load(instance->state + WRITE);
       pthread_mutex_lock( &tasks_mutex );
-
-      printf( "consumer: [ read is %d; write is %d ]\n", current_read, current_write );
-
+      //printf( "consumer: [ read is %d; write is %d ]\n", current_read, current_write );
       ////////////////////////////////////////////////////////////////////////////////////////
-      bool rc = FreeQueuePull(f->instance, output, length);
-      printf( "FreeQueuePull: %s\n", ( rc == true ) ? "true" : "false" );
+      bool rc = FreeQueuePull(instance, output, length);
+      //printf( "FreeQueuePull: %s\n", ( rc == true ) ? "true" : "false" );
       ////////////////////////////////////////////////////////////////////////////////////////
-
       pthread_mutex_unlock( &tasks_mutex );
+      usleep( 100 * 1000 ); // 100 ms
     }
-
     for (int i = 0; i < channel_count; i++) free( output[i] );
     free( output );
-
   }  
-
   printf( "consumer: exit thread\n" );
   return 0;
 }
-
 int main( int argc, char* argv[] )
 {
   return CreateFreeQueueThreads();

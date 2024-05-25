@@ -15,14 +15,15 @@ if [ -f $JS_FILE ]; then
 	rm $JS_FILE
 fi
 
-if [ -f $JS_WASM_WORKER_FILE ]; then
-	echo Delete existing file: $JS_WASM_WORKER_FILE
-	rm $JS_WASM_WORKER_FILE
-fi
 
 if [ -f $JS_FILE_WASM ]; then
 	echo Delete existing file: $JS_FILE_WASM
 	rm $JS_FILE_WASM
+fi
+
+if [ -f $JS_WASM_WORKER_FILE ]; then
+	echo Delete existing file: $JS_WASM_WORKER_FILE
+	rm $JS_WASM_WORKER_FILE
 fi
 
 echo $CC: free_queue.cpp -Llib -I../include -Iinclude -pthread $EMCCFLAGS -o $JS_FILE_WASM

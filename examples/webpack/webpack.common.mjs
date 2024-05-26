@@ -12,7 +12,6 @@ export default {
     experiments: {
         topLevelAwait: true
     },
-
     performance: {
       hints: false,
       maxEntrypointSize: 512000,

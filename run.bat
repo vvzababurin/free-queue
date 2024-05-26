@@ -18,6 +18,6 @@ cd ..
 
 cd examples
 @call cmd /C "npm run build:webpack"
-rem @call cmd /C "npm run start:webpack"
+@call cmd /C "npm run start:webpack"
 cd ..
 

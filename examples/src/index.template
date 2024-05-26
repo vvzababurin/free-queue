@@ -72,6 +72,7 @@
 			const r = window["FreeQueue"].pull( d, 1764 );
 			console.log( "pull: " + r );
 			console.log( "pull data: " + d );
+			window["FreeQueue"].printAvailableReadAndWrite();
 		});
 	});
     </script>

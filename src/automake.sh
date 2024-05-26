@@ -7,7 +7,7 @@ export INSTALLDIR=../build
 export JS_FILE=free-queue.js
 export JS_FILE_TEMP=free-queue.js.temp
 export JS_FILE_PART=free-queue.js.part
-export JS_WASM_FILE=free-queue.wasm
+export JS_WASM_FILE=free-queue.wasm.wasm
 export JS_WASM_JS_FILE=free-queue.wasm.js
 export JS_WASM_WORKER_FILE=free-queue.wasm.worker.js
 

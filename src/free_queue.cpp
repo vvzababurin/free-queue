@@ -263,9 +263,6 @@ void *producer( void *arg )
     double** input = (double **)malloc(channel_count * sizeof(double *));
     for (int i = 0; i < channel_count; i++) {
       input[i] = (double *)malloc(length * sizeof(double));
-      for (int j = 0; j < length; j++) {
-        input[i][j] = ( i % 2 ) ? -rand() : rand();
-      }
     }
     uint32_t current_read = atomic_load(instance->state + READ);
     uint32_t current_write = atomic_load(instance->state + WRITE);

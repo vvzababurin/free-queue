@@ -64,7 +64,6 @@
 
 		$('#startTest3').click(function() {
 			const PrintQueueInfo = window["Module"].cwrap('PrintQueueInfo','',[ 'number' ]);
-			PrintQueueInfo( window["instance"] );
 
 			const d = [2];
 			d[0] = new Float64Array(1764);

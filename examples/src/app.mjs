@@ -1,5 +1,5 @@
 try {		
-	console.log( "something..." );	
+	console.log( "Not matter any more\n" );	
 } 
 catch( e ) 
 {

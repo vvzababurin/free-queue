@@ -21,7 +21,6 @@
     <script defer type="text/javascript">
 		jQuery(document).ready(function () {
 			window["Module"].onRuntimeInitialized = () => { 
-/*
 				window["Module"].callMain("");
 				const GetFreeQueueThreads = window["Module"].cwrap('GetFreeQueueThreads','number',[ '' ]);
 				const GetFreeQueuePointers = window["Module"].cwrap('GetFreeQueuePointers','number',[ 'number', 'string' ]);
@@ -44,7 +43,6 @@
 				window["queue"] = FreeQueue.fromPointers( pointers );
 				console.log( "window[\"queue\"]: " + window["queue"] );
 				window["queue"].printAvailableReadAndWrite();
-*/
 			};
 			$('#startTest1').click(function() {
 				const DestroyFreeQueueThreads = Module.cwrap('DestroyFreeQueueThreads','',[ '' ]);

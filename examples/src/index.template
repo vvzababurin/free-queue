@@ -7,72 +7,60 @@
     <link href="js/themes/dark-hive/theme.css" rel="stylesheet" />
     <link href="js/jquery-ui-fix.css" rel="stylesheet" />
 
-    <script defer type="text/javascript" src="js/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="js/jquery-3.7.1.min.js"></script>
 
-    <script defer type="text/javascript" src="js/jquery-ui.js"></script>
-    <script defer type="text/javascript" src="js/jquery-ui-fix.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-fix.js"></script>
 
-    <script defer type="text/javascript" src="js/free-queue.js"></script>
-    <script defer type="text/javascript" src="js/free-queue.wasm.js"></script>
+    <script type="text/javascript" src="js/free-queue.js"></script>
+    <script type="text/javascript" src="js/free-queue.wasm.js"></script>
 
     <title>wasmFreeQueue test html page</title>
     <style></style>
-    <script type="text/javascript">
 
-	jQuery(document).ready(function () {
-
-		Module.onRuntimeInitialized = () => { 
-
-			window["Module"].callMain("");
-
-			const GetFreeQueueThreads = window["Module"].cwrap('GetFreeQueueThreads','number',[ '' ]);
-			const GetFreeQueuePointers = window["Module"].cwrap('GetFreeQueuePointers','number',[ 'number', 'string' ]);
-			const PrintQueueInfo = window["Module"].cwrap('PrintQueueInfo','',[ 'number' ]);
-			const CreateFreeQueue = window["Module"].cwrap('CreateFreeQueue','number',[ 'number', 'number' ]);
-			const PrintQueueAddresses = window["Module"].cwrap('PrintQueueAddresses','',[ 'number' ]);
-
-			window["instance"] = GetFreeQueueThreads();
-
-			const bufferLengthPtr = GetFreeQueuePointers( window["instance"], "buffer_length" );
-			const channelCountPtr = GetFreeQueuePointers( window["instance"], "channel_count" );
-			const statePtr = GetFreeQueuePointers( window["instance"], "state" );
-			const channelDataPtr = GetFreeQueuePointers( window["instance"], "channel_data" );
-
-			const pointers = new Object();
-
-			pointers.memory = window["Module"].HEAPU8;
-			pointers.bufferLengthPointer = bufferLengthPtr;
-			pointers.channelCountPointer = channelCountPtr;
-			pointers.statePointer = statePtr;
-			pointers.channelDataPointer = channelDataPtr;
-
-			window["FreeQueue"] = FreeQueue.fromPointers( pointers );
-			window["FreeQueue"].printAvailableReadAndWrite();
-			
-		};
-
-		$('#startTest1').click(function() {
-			const DestroyFreeQueueThreads = Module.cwrap('DestroyFreeQueueThreads','',[ '' ]);
-			DestroyFreeQueueThreads();
+    <script defer type="text/javascript">
+		jQuery(document).ready(function () {
+			Module.onRuntimeInitialized = () => { 
+				window["Module"].callMain("");
+				const GetFreeQueueThreads = window["Module"].cwrap('GetFreeQueueThreads','number',[ '' ]);
+				const GetFreeQueuePointers = window["Module"].cwrap('GetFreeQueuePointers','number',[ 'number', 'string' ]);
+				const PrintQueueInfo = window["Module"].cwrap('PrintQueueInfo','',[ 'number' ]);
+				const CreateFreeQueue = window["Module"].cwrap('CreateFreeQueue','number',[ 'number', 'number' ]);
+				const PrintQueueAddresses = window["Module"].cwrap('PrintQueueAddresses','',[ 'number' ]);
+				window["instance"] = GetFreeQueueThreads();
+				const bufferLengthPtr = GetFreeQueuePointers( window["instance"], "buffer_length" );
+				const channelCountPtr = GetFreeQueuePointers( window["instance"], "channel_count" );
+				const statePtr = GetFreeQueuePointers( window["instance"], "state" );
+				const channelDataPtr = GetFreeQueuePointers( window["instance"], "channel_data" );
+				const pointers = new Object();
+				pointers.memory = window["Module"].HEAPU8;
+				pointers.bufferLengthPointer = bufferLengthPtr;
+				pointers.channelCountPointer = channelCountPtr;
+				pointers.statePointer = statePtr;
+				pointers.channelDataPointer = channelDataPtr;
+				window["FreeQueue"] = FreeQueue.fromPointers( pointers );
+				window["FreeQueue"].printAvailableReadAndWrite();
+			};
+			$('#startTest1').click(function() {
+				const DestroyFreeQueueThreads = Module.cwrap('DestroyFreeQueueThreads','',[ '' ]);
+				DestroyFreeQueueThreads();
+			});
+			$('#startTest2').click(function() {
+				const PrintQueueInfo = window["Module"].cwrap('PrintQueueInfo','',[ 'number' ]);
+				PrintQueueInfo( window["instance"] );
+				window["FreeQueue"].printAvailableReadAndWrite();
+			});
+			$('#startTest3').click(function() {
+				const PrintQueueInfo = window["Module"].cwrap('PrintQueueInfo','',[ 'number' ]);
+				const d = [2];
+				d[0] = new Float64Array(1764);
+				d[1] = new Float64Array(1764);
+				const r = window["FreeQueue"].pull( d, 1764 );
+				console.log( "pull: " + r );
+				console.log( "pull data: " + d );
+				window["FreeQueue"].printAvailableReadAndWrite();
+			});
 		});
-
-		$('#startTest2').click(function() {
-			const PrintQueueInfo = window["Module"].cwrap('PrintQueueInfo','',[ 'number' ]);
-			PrintQueueInfo( window["instance"] );
-			window["FreeQueue"].printAvailableReadAndWrite();
-		});
-
-		$('#startTest3').click(function() {
-			const PrintQueueInfo = window["Module"].cwrap('PrintQueueInfo','',[ 'number' ]);
-			const d = [2];
-			d[0] = new Float64Array(1764);
-			d[1] = new Float64Array(1764);
-			const r = window["FreeQueue"].pull( d, 1764 );
-			console.log( "pull: " + r );
-			console.log( "pull data: " + d );
-			window["FreeQueue"].printAvailableReadAndWrite();
-		});
-	});
     </script>
 </head>
 

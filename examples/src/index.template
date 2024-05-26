@@ -7,13 +7,13 @@
     <link href="js/themes/dark-hive/theme.css" rel="stylesheet" />
     <link href="js/jquery-ui-fix.css" rel="stylesheet" />
 
-    <script type="text/javascript" src="js/jquery-3.7.1.min.js"></script>
+    <script defer type="text/javascript" src="js/jquery-3.7.1.min.js"></script>
 
-    <script type="text/javascript" src="js/jquery-ui.js"></script>
-    <script type="text/javascript" src="js/jquery-ui-fix.js"></script>
+    <script defer type="text/javascript" src="js/jquery-ui.js"></script>
+    <script defer type="text/javascript" src="js/jquery-ui-fix.js"></script>
 
-    <script type="text/javascript" src="js/free-queue.wasm.js"></script>
-    <script type="text/javascript" src="js/free-queue.js"></script>
+    <script defer type="text/javascript" src="js/free-queue.js"></script>
+    <script defer type="text/javascript" src="js/free-queue.wasm.js"></script>
 
     <title>wasmFreeQueue test html page</title>
     <style></style>
@@ -64,11 +64,9 @@
 
 		$('#startTest3').click(function() {
 			const PrintQueueInfo = window["Module"].cwrap('PrintQueueInfo','',[ 'number' ]);
-
 			const d = [2];
 			d[0] = new Float64Array(1764);
 			d[1] = new Float64Array(1764);
-
 			const r = window["FreeQueue"].pull( d, 1764 );
 			console.log( "pull: " + r );
 			console.log( "pull data: " + d );

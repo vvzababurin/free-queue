@@ -269,7 +269,7 @@ void *producer( void *arg )
     }
     uint32_t current_read = atomic_load(instance->state + READ);
     uint32_t current_write = atomic_load(instance->state + WRITE);
-    while( _getAvailableRead(instance, current_read, current_write) < ( length * 450 ) && f->busy ) { 
+    while( _getAvailableWrite(instance, current_read, current_write) > ( length * 450 ) && f->busy ) { 
       current_read = atomic_load(instance->state + READ);
       current_write = atomic_load(instance->state + WRITE);
       pthread_mutex_lock( &tasks_mutex );

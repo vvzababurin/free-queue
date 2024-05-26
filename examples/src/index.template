@@ -20,7 +20,7 @@
 
     <script defer type="text/javascript">
 		jQuery(document).ready(function () {
-			Module.onRuntimeInitialized = () => { 
+			window["Module"].onRuntimeInitialized = () => { 
 				window["Module"].callMain("");
 				const GetFreeQueueThreads = window["Module"].cwrap('GetFreeQueueThreads','number',[ '' ]);
 				const GetFreeQueuePointers = window["Module"].cwrap('GetFreeQueuePointers','number',[ 'number', 'string' ]);
@@ -28,17 +28,20 @@
 				const CreateFreeQueue = window["Module"].cwrap('CreateFreeQueue','number',[ 'number', 'number' ]);
 				const PrintQueueAddresses = window["Module"].cwrap('PrintQueueAddresses','',[ 'number' ]);
 				window["instance"] = GetFreeQueueThreads();
+				console.log( "instance: " + window["instance"] );
 				const bufferLengthPtr = GetFreeQueuePointers( window["instance"], "buffer_length" );
 				const channelCountPtr = GetFreeQueuePointers( window["instance"], "channel_count" );
 				const statePtr = GetFreeQueuePointers( window["instance"], "state" );
 				const channelDataPtr = GetFreeQueuePointers( window["instance"], "channel_data" );
 				const pointers = new Object();
+				console.log( "pointers: " + pointers );
 				pointers.memory = window["Module"].HEAPU8;
 				pointers.bufferLengthPointer = bufferLengthPtr;
 				pointers.channelCountPointer = channelCountPtr;
 				pointers.statePointer = statePtr;
 				pointers.channelDataPointer = channelDataPtr;
 				window["FreeQueue"] = FreeQueue.fromPointers( pointers );
+				console.log( "window[\"FreeQueue\"]: " + window["FreeQueue"] );
 				window["FreeQueue"].printAvailableReadAndWrite();
 			};
 			$('#startTest1').click(function() {

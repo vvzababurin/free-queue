@@ -7,7 +7,7 @@ rem Emscripten SDK...
 set EMSCRIPTENDIR=c:/emscripten/emsdk
 
 set CC=emcc
-set EMCCFLAGS=-s SINGLE_FILE=0 -s TOTAL_MEMORY=100MB -s ALLOW_MEMORY_GROWTH=0 -s EXPORTED_RUNTIME_METHODS=['callMain','ccall','cwrap'] -s INVOKE_RUN=0 -O3
+set EMCCFLAGS=-s SINGLE_FILE=0 -s TOTAL_MEMORY=200MB -s ALLOW_MEMORY_GROWTH=0 -s EXPORTED_RUNTIME_METHODS=['callMain','ccall','cwrap'] -s INVOKE_RUN=0 -O3
 
 cd src
 set DIR=%cd%
@@ -18,6 +18,6 @@ cd ..
 
 cd examples
 @call cmd /C "npm run build:webpack"
-rem @call cmd /C "npm run start:webpack"
+@call cmd /C "npm run start:webpack"
 cd ..
 

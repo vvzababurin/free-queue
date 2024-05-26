@@ -60,7 +60,6 @@ uint32_t _getAvailableWrite(
 ) {
   if (write_index >= read_index)
     return queue->buffer_length - write_index + read_index - 1;
-  
   return read_index - write_index - 1;
 }
 
@@ -71,14 +70,11 @@ extern "C" {
 EMSCRIPTEN_KEEPALIVE
 struct FreeQueue *CreateFreeQueue(size_t length, size_t channel_count) {
   struct FreeQueue *queue = (struct FreeQueue *)malloc(sizeof(struct FreeQueue));
-
   queue->buffer_length = length + 1;
   queue->channel_count = channel_count;
   queue->state = (atomic_uint *)malloc(2 * sizeof(atomic_uint));
-
   atomic_store(queue->state + READ, 0);
   atomic_store(queue->state + WRITE, 0);
-
   queue->channel_data = (double **)malloc(channel_count * sizeof(double *));
   for (int i = 0; i < channel_count; i++) {
     queue->channel_data[i] = (double *)malloc(queue->buffer_length * sizeof(double));
@@ -86,75 +82,81 @@ struct FreeQueue *CreateFreeQueue(size_t length, size_t channel_count) {
       queue->channel_data[i][j] = 0;
     }
   }
-
   return queue;
 }
 
 EMSCRIPTEN_KEEPALIVE
 void DestroyFreeQueue(struct FreeQueue *queue) {
-  for (int i = 0; i < queue->channel_count; i++) {
-    free(queue->channel_data[i]);
+  if ( queue != nullptr ) {
+    for (int i = 0; i < queue->channel_count; i++) {
+      free(queue->channel_data[i]);
+    }
+    free(queue->channel_data);
+    free(queue);
   }
-  free(queue->channel_data);
-  free(queue);
 }
 
 EMSCRIPTEN_KEEPALIVE
 bool FreeQueuePush(struct FreeQueue *queue, double **input, size_t block_length) {
-  uint32_t current_read = atomic_load(queue->state + READ);
-  uint32_t current_write = atomic_load(queue->state + WRITE);
-
-  if (_getAvailableWrite(queue, current_read, current_write) < block_length) {
-    return false;
-  }
-
-  for (uint32_t i = 0; i < block_length; i++) {
-    for (uint32_t channel = 0; channel < queue->channel_count; channel++) {
-      queue->channel_data[channel][(current_write + i) % queue->buffer_length] = 
-          input[channel][i];
+  if ( queue != nullptr ) {
+    uint32_t current_read = atomic_load(queue->state + READ);
+    uint32_t current_write = atomic_load(queue->state + WRITE);
+    if (_getAvailableWrite(queue, current_read, current_write) < block_length) {
+      return false;
     }
+    for (uint32_t i = 0; i < block_length; i++) {
+      for (uint32_t channel = 0; channel < queue->channel_count; channel++) {
+        queue->channel_data[channel][(current_write + i) % queue->buffer_length] = 
+            input[channel][i];
+      }
+    }
+    uint32_t next_write = (current_write + block_length) % queue->buffer_length;
+    atomic_store(queue->state + WRITE, next_write);
+    return true;
   }
-
-  uint32_t next_write = (current_write + block_length) % queue->buffer_length;
-  atomic_store(queue->state + WRITE, next_write);
-  return true;
+  return false;
 }
 
 EMSCRIPTEN_KEEPALIVE
 bool FreeQueuePull(struct FreeQueue *queue, double **output, size_t block_length) {
-  uint32_t current_read = atomic_load(queue->state + READ);
-  uint32_t current_write = atomic_load(queue->state + WRITE);
+  if ( queue != nullptr ) {
+    uint32_t current_read = atomic_load(queue->state + READ);
+    uint32_t current_write = atomic_load(queue->state + WRITE);
 
-  if (_getAvailableRead(queue, current_read, current_write) < block_length) {
-    return false;
-  }
-
-  for (uint32_t i = 0; i < block_length; i++) {
-    for (uint32_t channel = 0; channel < queue->channel_count; channel++) {
-      output[channel][i] = 
-          queue->channel_data[channel][(current_read + i) % queue->buffer_length];
+    if (_getAvailableRead(queue, current_read, current_write) < block_length) {
+      return false;
     }
-  }
 
-  uint32_t nextRead = (current_read + block_length) % queue->buffer_length;
-  atomic_store(queue->state + READ, nextRead);
-  return true;
+    for (uint32_t i = 0; i < block_length; i++) {
+      for (uint32_t channel = 0; channel < queue->channel_count; channel++) {
+        output[channel][i] = 
+            queue->channel_data[channel][(current_read + i) % queue->buffer_length];
+      }
+    }
+
+    uint32_t nextRead = (current_read + block_length) % queue->buffer_length;
+    atomic_store(queue->state + READ, nextRead);
+    return true;
+  }
+  return false;
 }
 
 EMSCRIPTEN_KEEPALIVE
 void *GetFreeQueuePointers( struct FreeQueue* queue, char* data ) 
 {
-  if (strcmp(data, "buffer_length") == 0) {
-    return ( void* )&queue->buffer_length;
-  }
-  else if (strcmp(data, "channel_count") == 0) {
-    return ( void* )&queue->channel_count;
-  }
-  else if (strcmp(data, "state") == 0) {
-    return ( void* )&queue->state;
-  }
-  else if (strcmp(data, "channel_data") == 0) {
-    return ( void* )&queue->channel_data;
+  if ( queue != nullptr ) {
+    if (strcmp(data, "buffer_length") == 0) {
+      return ( void* )&queue->buffer_length;
+    }
+    else if (strcmp(data, "channel_count") == 0) {
+      return ( void* )&queue->channel_count;
+    }
+    else if (strcmp(data, "state") == 0) {
+      return ( void* )&queue->state;
+    }
+    else if (strcmp(data, "channel_data") == 0) {
+      return ( void* )&queue->channel_data;
+    }
   }
   return 0;
 }
@@ -175,8 +177,7 @@ void DestroyFreeQueueThreads() {
 
 EMSCRIPTEN_KEEPALIVE 
 struct FreeQueue *GetFreeQueueThreads() {
-  if ( memorydata.instance != nullptr )
-  {
+  if ( memorydata.instance != nullptr ) {
     return memorydata.instance;
   }
   return nullptr;
@@ -199,46 +200,50 @@ int CreateFreeQueueThreads() {
     return -1;
   }
   printf( "CreateThreads: producer thread created...\n" );
-  return 1;
+  return 0;
 }
 
 EMSCRIPTEN_KEEPALIVE 
 void PrintQueueInfo(struct FreeQueue *queue) {
-  uint32_t current_read = atomic_load(queue->state + READ);
-  uint32_t current_write = atomic_load(queue->state + WRITE);
-  for (uint32_t channel = 0; channel < queue->channel_count; channel++) {
-    printf("channel %d: ", channel);
-    for (uint32_t i = 0; i < queue->buffer_length; i++) {
-      printf("%f ", queue->channel_data[channel][i]);
+  if ( queue != nullptr ) {
+    uint32_t current_read = atomic_load(queue->state + READ);
+    uint32_t current_write = atomic_load(queue->state + WRITE);
+    for (uint32_t channel = 0; channel < queue->channel_count; channel++) {
+      printf("channel %d: ", channel);
+      for (uint32_t i = 0; i < queue->buffer_length; i++) {
+        printf("%f ", queue->channel_data[channel][i]);
+      }
+      printf("\n");
     }
-    printf("\n");
+    printf("----------\n");
+    printf("current_read: %u  | current_write: %u\n", current_read, current_write);
+    printf("available_read: %u  | available_write: %u\n", 
+        _getAvailableRead(queue, current_read, current_write), 
+        _getAvailableWrite(queue, current_read, current_write));
+    printf("----------\n");
   }
-  printf("----------\n");
-  printf("current_read: %u  | current_write: %u\n", current_read, current_write);
-  printf("available_read: %u  | available_write: %u\n", 
-      _getAvailableRead(queue, current_read, current_write), 
-      _getAvailableWrite(queue, current_read, current_write));
-  printf("----------\n");
 }
 
 EMSCRIPTEN_KEEPALIVE 
 void PrintQueueAddresses(struct FreeQueue *queue) {
-  printf("buffer_length: %p   uint: %zu\n", 
-      &queue->buffer_length, (size_t)&queue->buffer_length);
-  printf("channel_count: %p   uint: %zu\n", 
-      &queue->channel_count, (size_t)&queue->channel_count);
-  printf("state       : %p   uint: %zu\n", 
-      &queue->state, (size_t)&queue->state);
-  printf("channel_data    : %p   uint: %zu\n", 
-      &queue->channel_data, (size_t)&queue->channel_data);
-  for (uint32_t channel = 0; channel < queue->channel_count; channel++) {
-      printf("channel_data[%d]    : %p   uint: %zu\n", channel,
-          &queue->channel_data[channel], (size_t)&queue->channel_data[channel]);
+  if ( queue != nullptr ) {
+    printf("buffer_length: %p   uint: %zu\n", 
+        &queue->buffer_length, (size_t)&queue->buffer_length);
+    printf("channel_count: %p   uint: %zu\n", 
+        &queue->channel_count, (size_t)&queue->channel_count);
+    printf("state       : %p   uint: %zu\n", 
+        &queue->state, (size_t)&queue->state);
+    printf("channel_data    : %p   uint: %zu\n", 
+        &queue->channel_data, (size_t)&queue->channel_data);
+    for (uint32_t channel = 0; channel < queue->channel_count; channel++) {
+        printf("channel_data[%d]    : %p   uint: %zu\n", channel,
+            &queue->channel_data[channel], (size_t)&queue->channel_data[channel]);
+    }
+    printf("state[0]    : %p   uint: %zu\n", 
+        &queue->state[0], (size_t)&queue->state[0]);
+    printf("state[1]    : %p   uint: %zu\n", 
+        &queue->state[1], (size_t)&queue->state[1]);
   }
-  printf("state[0]    : %p   uint: %zu\n", 
-      &queue->state[0], (size_t)&queue->state[0]);
-  printf("state[1]    : %p   uint: %zu\n", 
-      &queue->state[1], (size_t)&queue->state[1]);
 }
 
 #ifdef __cplusplus
@@ -264,8 +269,7 @@ void *producer( void *arg )
     }
     uint32_t current_read = atomic_load(instance->state + READ);
     uint32_t current_write = atomic_load(instance->state + WRITE);
-    //while( current_read < length * 350 ) 
-    { 
+    while( _getAvailableRead(instance, current_read, current_write) < ( length * 450 ) ) { 
       current_read = atomic_load(instance->state + READ);
       current_write = atomic_load(instance->state + WRITE);
       pthread_mutex_lock( &tasks_mutex );
@@ -276,6 +280,7 @@ void *producer( void *arg )
       //printf( "FreeQueuePush: %s\n", ( rc == true ) ? "true" : "false" );
       ////////////////////////////////////////////////////////////////////////////////////////
       pthread_mutex_unlock( &tasks_mutex );
+      usleep( 40 * 1000 ); // 40ms 1fps
     }
     for (int i = 0; i < channel_count; i++) free( input[i] );
     free( input );
@@ -304,8 +309,7 @@ void *consumer( void *arg )
     }    
     uint32_t current_read = atomic_load(instance->state + READ);
     uint32_t current_write = atomic_load(instance->state + WRITE);
-    while( current_read > length ) 
-    {
+    while( _getAvailableRead(instance, current_read, current_write) > 0 ) {
       current_read = atomic_load(instance->state + READ);
       current_write = atomic_load(instance->state + WRITE);
       pthread_mutex_lock( &tasks_mutex );
@@ -315,7 +319,7 @@ void *consumer( void *arg )
       //printf( "FreeQueuePull: %s\n", ( rc == true ) ? "true" : "false" );
       ////////////////////////////////////////////////////////////////////////////////////////
       pthread_mutex_unlock( &tasks_mutex );
-      usleep( 100 * 1000 ); // 100 ms
+      usleep( 120 * 1000 ); // 120ms 3fps
     }
     for (int i = 0; i < channel_count; i++) free( output[i] );
     free( output );

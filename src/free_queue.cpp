@@ -122,18 +122,15 @@ bool FreeQueuePull(struct FreeQueue *queue, double **output, size_t block_length
   if ( queue != nullptr ) {
     uint32_t current_read = atomic_load(queue->state + READ);
     uint32_t current_write = atomic_load(queue->state + WRITE);
-
     if (_getAvailableRead(queue, current_read, current_write) < block_length) {
       return false;
     }
-
     for (uint32_t i = 0; i < block_length; i++) {
       for (uint32_t channel = 0; channel < queue->channel_count; channel++) {
         output[channel][i] = 
             queue->channel_data[channel][(current_read + i) % queue->buffer_length];
       }
     }
-
     uint32_t nextRead = (current_read + block_length) % queue->buffer_length;
     atomic_store(queue->state + READ, nextRead);
     return true;
@@ -162,17 +159,41 @@ void *GetFreeQueuePointers( struct FreeQueue* queue, char* data )
 }
 
 EMSCRIPTEN_KEEPALIVE 
-void DestroyFreeQueueThreads() {
-  if ( memorydata.instance != nullptr )
-  {
+int DestroyFreeQueueThreads() {
+  if ( memorydata.instance != nullptr ) {
     memorydata.busy = 0;
-
     pthread_join(tid_producer, 0);
     pthread_join(tid_consumer, 0);
-
     DestroyFreeQueue( memorydata.instance );
+    tid_producer = 0;
+    tid_consumer = 0;
     memorydata.instance = nullptr;
+    return 1;
   }
+  return 0;
+}
+
+EMSCRIPTEN_KEEPALIVE 
+int CreateFreeQueueThreads() {
+  uint32_t channel_count = 2;
+  uint32_t length = 1764;
+  if ( memorydata.instance == nullptr ) {
+    memorydata.busy = 1;
+    memorydata.instance = CreateFreeQueue( length * 500, channel_count );
+    int p = 0;
+    p = pthread_create( &tid_consumer, 0, consumer, &memorydata );
+    if ( p ) {
+      return -1;
+    }
+    printf( "CreateThreads: consumer thread created...\n" );
+    p = pthread_create( &tid_producer, 0, producer, &memorydata );
+    if ( p ) {
+      return -1;
+    }
+    printf( "CreateThreads: producer thread created...\n" );
+    return 1;
+  }
+  return 0;
 }
 
 EMSCRIPTEN_KEEPALIVE 
@@ -181,26 +202,6 @@ struct FreeQueue *GetFreeQueueThreads() {
     return memorydata.instance;
   }
   return nullptr;
-}
-
-EMSCRIPTEN_KEEPALIVE 
-int CreateFreeQueueThreads() {
-  uint32_t channel_count = 2;
-  uint32_t length = 1764;
-  memorydata.busy = 1;
-  memorydata.instance = CreateFreeQueue( length * 500, channel_count );
-  int p = 0;
-  p = pthread_create( &tid_consumer, 0, consumer, &memorydata );
-  if ( p ) {
-    return -1;
-  }
-  printf( "CreateThreads: consumer thread created...\n" );
-  p = pthread_create( &tid_producer, 0, producer, &memorydata );
-  if ( p ) {
-    return -1;
-  }
-  printf( "CreateThreads: producer thread created...\n" );
-  return 0;
 }
 
 EMSCRIPTEN_KEEPALIVE 
@@ -331,6 +332,8 @@ void *consumer( void *arg )
 }
 int main( int argc, char* argv[] )
 {
+  memorydata.instance = nullptr;
+  memorydata.busy = 1;
   return CreateFreeQueueThreads();
 }
 

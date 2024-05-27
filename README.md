@@ -30,11 +30,15 @@ cd examples
 npm install
 ```
 
-### Compile free-queue
+### Assign rights to ./build.sh
 ```bash
 cd ..
 chmod +x ./build.sh
-./buld.sh
+```
+
+### Compile free-queue
+```bash
+./build.sh
 ```
 
 

@@ -16,25 +16,21 @@ set JS_WASM_WORKER_FILE=free-queue.wasm.worker.js
 if exist %JS_FILE% (
 	@echo Delete existing file: %JS_FILE%
 	@del %JS_FILE%
-rem 	@del %INSTALLDIR%\%JS_FILE%
 )
 
 if exist %JS_WASM_JS_FILE% (
 	@echo Delete existing file: %JS_WASM_JS_FILE%
 	@del %JS_WASM_JS_FILE%
-rem	@del %INSTALLDIR%\%JS_WASM_JS_FILE%
 )
 
 if exist %JS_WASM_WORKER_FILE% (
 	@echo Delete existing file: %JS_WASM_WORKER_FILE%
 	@del %JS_WASM_WORKER_FILE%
-rem	@del %INSTALLDIR%\%JS_WASM_WORKER_FILE%
 )
 
 if exist %JS_WASM_FILE% (
 	@echo Delete existing file: %JS_WASM_FILE%
 	@del %JS_WASM_FILE%
-rem	@del %INSTALLDIR%\%JS_WASM_FILE%
 )
 
 @echo %CC%: free_queue.cpp -Llib -I../include -Iinclude -pthread %EMCCFLAGS% -o %JS_WASM_JS_FILE%

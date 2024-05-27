@@ -3,8 +3,8 @@
 # Emscripten SDK...
 # export EMSCRIPTENDIR=c:/emscripten/emsdk
 
-rm --force build/*.js
-rm --force build/*.wasm
+rm --force *.js
+rm --force *.wasm
 
 export DIR=`pwd`
 sh ./automake.sh

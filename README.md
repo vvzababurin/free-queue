@@ -36,7 +36,7 @@ cd ..
 chmod +x ./build.sh
 ```
 
-### Compile free-queue
+### Compile and run free-queue
 ```bash
 ./build.sh
 ```

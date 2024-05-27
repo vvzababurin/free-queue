@@ -6,7 +6,7 @@ git clone https://github.com/emscripten-core/emsdk.git
 cd emsdk
 ```
 
-### Install and activate Emscripten SDK 2.0.28
+### Emscripten SDK: Install and activate SDK 2.0.28
 ```bash
 git pull
 ./emsdk install 2.0.28

@@ -24,7 +24,7 @@ git clone https://github.com/vvzababurin/free-queue.git
 cd free-queue
 ```
 
-### Install free-queue examples
+### Install free-queue modules for examples
 ```bash
 cd examples
 npm install

@@ -1,5 +1,7 @@
 # Install free-queue library
+#
 
+## Configure emscripten SDK
 ### Emscripten SDK
 ```bash
 git clone https://github.com/emscripten-core/emsdk.git
@@ -18,6 +20,7 @@ git pull
 source ./emsdk_env.sh
 ```
 
+## Configure free-queue library
 ### free-queue library
 ```bash
 git clone https://github.com/vvzababurin/free-queue.git

@@ -15,7 +15,7 @@ git pull
 ./emsdk activate 2.0.28
 ```
 
-### Add to profile
+### Add environment to profile
 ```bash
 source ./emsdk_env.sh
 ```

@@ -1,4 +1,4 @@
-# free-queue library
+# Install free-queue library
 
 ### Emscripten SDK
 ```bash
@@ -17,3 +17,29 @@ git pull
 ```bash
 source ./emsdk_env.sh
 ```
+
+### free-queue library
+```bash
+git clone https://github.com/vvzababurin/free-queue.git
+cd free-queue
+```
+
+### Install free-queue examples
+```bash
+cd examples
+npm install
+```
+
+### Compile free-queue
+```bash
+cd ..
+chmod +x ./build.sh
+./buld.sh
+```
+
+
+
+
+
+
+

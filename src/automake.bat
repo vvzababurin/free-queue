@@ -39,7 +39,7 @@ if exist %JS_WASM_FILE% (
 
 if exist %JS_WASM_WORKER_FILE% (
 	@echo Convert to base64 existing file: %JS_WASM_WORKER_FILE%
-	@openssl base64 -A -in %JS_WASM_WORKER_FILE% >> %JS_WASM_WORKER_BLOB_FILE%
+	@openssl base64 -A -in %JS_WASM_WORKER_FILE% > %JS_WASM_WORKER_BLOB_FILE%
 rem	@del %JS_WASM_WORKER_FILE%
 )
 
@@ -54,27 +54,31 @@ rem @echo ' >> %JS_FILE%
 
 rem @type %JS_WASM_JS_FILE% >> %JS_FILE%
 
-@del %JS_WASM_JS_FILE%
+if exist %JS_WASM_JS_FILE% (
+	@echo Delete existing file: %JS_WASM_JS_FILE%
+	@del %JS_WASM_JS_FILE%
+)
+
 rem @del %JS_WASM_WORKER_BLOB_FILE%
 
 if exist %JS_FILE% (
-	@echo Copy existing file: %DIR%\%JS_FILE% %INSTALLDIR%\%JS_FILE% /Y
-	@copy %DIR%\%JS_FILE% %INSTALLDIR%\%JS_FILE% /Y
+	@echo Copy existing file: %JS_FILE% %INSTALLDIR%\%JS_FILE% /Y
+	@copy %JS_FILE% %INSTALLDIR%\%JS_FILE% /Y
 )
 
 if exist %JS_WASM_JS_FILE% (
- 	@echo Copy existing file: %DIR%\%JS_WASM_JS_FILE% %INSTALLDIR%\%JS_WASM_JS_FILE% /Y
-	@copy %DIR%\%JS_WASM_JS_FILE% %INSTALLDIR%\%JS_WASM_JS_FILE% /Y
+ 	@echo Copy existing file: %JS_WASM_JS_FILE% %INSTALLDIR%\%JS_WASM_JS_FILE% /Y
+	@copy %JS_WASM_JS_FILE% %INSTALLDIR%\%JS_WASM_JS_FILE% /Y
 )
 
 if exist %JS_WASM_WORKER_FILE% (
- 	@echo Copy existing file: %DIR%\%JS_WASM_WORKER_FILE% %INSTALLDIR%\%JS_WASM_WORKER_FILE% /Y
-	@copy %DIR%\%JS_WASM_WORKER_FILE% %INSTALLDIR%\%JS_WASM_WORKER_FILE% /Y
+ 	@echo Copy existing file: %JS_WASM_WORKER_FILE% %INSTALLDIR%\%JS_WASM_WORKER_FILE% /Y
+	@copy %JS_WASM_WORKER_FILE% %INSTALLDIR%\%JS_WASM_WORKER_FILE% /Y
 )
 
 if exist %JS_WASM_FILE% (
- 	@echo Copy existing file: %DIR%\%JS_WASM_FILE% %INSTALLDIR%\%JS_WASM_FILE% /Y
-	@copy %DIR%\%JS_WASM_FILE% %INSTALLDIR%\%JS_WASM_FILE% /Y
+ 	@echo Copy existing file: %JS_WASM_FILE% %INSTALLDIR%\%JS_WASM_FILE% /Y
+	@copy %JS_WASM_FILE% %INSTALLDIR%\%JS_WASM_FILE% /Y
 )
 
 exit /b 0

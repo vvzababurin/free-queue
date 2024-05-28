@@ -38,6 +38,7 @@ if exist %JS_WASM_FILE% (
 
 @type %JS_FILE_PART% >> %JS_FILE%
 @type %JS_WASM_JS_FILE% >> %JS_FILE%
+@del %JS_WASM_JS_FILE%
 
 if exist %JS_FILE% (
 	@echo Copy existing file: %DIR%\%JS_FILE% %INSTALLDIR%\%JS_FILE% /Y

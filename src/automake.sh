@@ -34,8 +34,8 @@ fi
 echo $CC: free_queue.cpp -Llib -I../include -Iinclude -pthread $EMCCFLAGS -o $JS_WASM_JS_FILE
 $CC free_queue.cpp -Llib -I../include -Iinclude -pthread $EMCCFLAGS -o $JS_WASM_JS_FILE
 
-# cat $JS_FILE_PART >> $JS_FILE
 cat $JS_FILE_PART >> $JS_FILE
+cat $JS_WASM_JS_FILE >> $JS_FILE
 
 if [ -f $JS_FILE ]; then
 	echo Copy existing file: $DIR/$JS_FILE $INSTALLDIR/$JS_FILE

@@ -330,6 +330,7 @@ void *consumer( void *arg )
   printf( "consumer: exit thread\n" );
   return 0;
 }
+
 int main( int argc, char* argv[] )
 {
   memorydata.instance = nullptr;

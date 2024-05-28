@@ -46,12 +46,10 @@ rem	@del %JS_WASM_WORKER_FILE%
 @type %JS_FILE_PART% >> %JS_FILE%
 @type %JS_WASM_JS_FILE% >> %JS_FILE%
 
-rem fartt -q %JS_WASM_JS_FILE% "locateFile(\"!JS_WASM_WORKER_FILE!\")" "window[\"pthreadBlobMainJs\"]"
-
-rem @echo|set /p=window["pthreadBlobMainJs"] = 'data:text/javascript;base64,>> %JS_FILE%
+rem @echo|set /p = "window['pthreadBlobMainJs'] = 'data:text/javascript;base64," >> %JS_FILE%
 rem @type %JS_WASM_WORKER_BLOB_FILE% >> %JS_FILE%
 rem @echo ' >> %JS_FILE%
-
+rem fartt -q %JS_WASM_JS_FILE% "locateFile(\"!JS_WASM_WORKER_FILE!\")" "window[\"pthreadBlobMainJs\"]"
 rem @type %JS_WASM_JS_FILE% >> %JS_FILE%
 
 if exist %JS_WASM_JS_FILE% (

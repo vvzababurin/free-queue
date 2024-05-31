@@ -1,5 +1,15 @@
+import Module from './js/free-queue.wasm.js'
+
 try {		
-	console.log( "Not matter any more\n" );	
+	Module.ready( function() {
+		console.log( "onRuntimeInitialized...\n" );		
+	} );
+	window["Module"].onRuntimeInitialized = () => { 				
+		window["queue"] = undefined;
+		window["instance"] = undefined;
+		window["Module"].callMain("");
+		window.onFreeQueueInitialize();
+	};	
 } 
 catch( e ) 
 {

@@ -4,7 +4,7 @@
 # export EMSCRIPTENDIR=c:/emscripten/emsdk
 
 export CC=emcc
-export EMCCFLAGS="-s MODULARIZE=1 -s SINGLE_FILE=0  -s EXPORT_ES6=1 -s TOTAL_MEMORY=200MB -s ALLOW_MEMORY_GROWTH=0 -s EXPORTED_RUNTIME_METHODS=['callMain','ccall','cwrap'] -s INVOKE_RUN=0 -O3"
+export EMCCFLAGS="-s MODULARIZE=1 -s EXPORT_ES6=1 -s SINGLE_FILE=0 -s TOTAL_MEMORY=200MB -s ALLOW_MEMORY_GROWTH=0 -s EXPORTED_RUNTIME_METHODS=['callMain','ccall','cwrap'] -s INVOKE_RUN=0 -O3"
 
 rm -f ./build/*.*
 

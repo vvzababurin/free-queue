@@ -45,8 +45,8 @@ export default {
     output: {
       path: path.resolve(__dirname, 'dist'),
       filename: "[name].bundle.js"
-//	    chunkFilename: "[id].bundle.js",
-//	    assetModuleFilename: "[path][name].[ext]",
+//      chunkFilename: "[id].bundle.js"
+//      assetModuleFilename: "[path][name].[ext]"
     // publicPath: path.resolve(__dirname, 'dist/this'),
     },
     module: {
@@ -65,7 +65,7 @@ export default {
         },
       },
       { 
-        test: /\.wgsl/,
+        test: /\.(wgsl)$/,
         type: 'asset/source'
       },
       { 

@@ -9,9 +9,9 @@ set INSTALLDIR=..\build
 set JS_FILE=free-queue.js
 set JS_FILE_TEMP=free-queue.js.temp
 set JS_FILE_PART=free-queue.js.part
-set JS_WASM_FILE=free-queue.wasm.wasm
-set JS_WASM_JS_FILE=free-queue.wasm.js
-set JS_WASM_WORKER_FILE=free-queue.wasm.worker.js
+set JS_WASM_FILE=free-queue-asm.wasm
+set JS_WASM_JS_FILE=free-queue-asm.js
+set JS_WASM_WORKER_FILE=free-queue-asm.worker.js
 set JS_WASM_HTML_FILE=free-queue.html
 
 if exist %JS_FILE% (

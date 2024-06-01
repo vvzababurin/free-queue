@@ -34,7 +34,8 @@ export default {
 //          { from: path.resolve(__dirname, 'src', 'fonts'), to: path.resolve(__dirname, 'dist', 'fonts') },
 //          { from: path.resolve(__dirname, 'src', 'fonts'), to: path.resolve(__dirname, 'dist', 'fonts') },
           { from: path.resolve(__dirname, 'src', 'favicon.ico'), to: path.resolve(__dirname, 'dist', 'favicon.ico') },
-          { from: path.resolve(__dirname, 'src', 'js'), to: path.resolve(__dirname, 'dist', 'js') }
+          { from: path.resolve(__dirname, 'src', 'js'), to: path.resolve(__dirname, 'dist', 'js') },
+          { from: path.resolve(__dirname, 'src', 'free-queue'), to: path.resolve(__dirname, 'dist', 'free-queue') }
 //          { from: path.resolve(__dirname, 'src', 'assets'), to: path.resolve(__dirname, 'dist', 'assets') },
 //          { from: path.resolve(__dirname, 'src', 'addons'), to: path.resolve(__dirname, 'dist') },
 //          { from: path.resolve(__dirname, 'src', 'config'), to: path.resolve(__dirname, 'dist', 'config') },

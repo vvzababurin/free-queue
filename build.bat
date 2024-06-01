@@ -16,7 +16,7 @@ set DIR=%cd%
 @call cmd /C "%EMSCRIPTENDIR:~0,2% && cd %EMSCRIPTENDIR% && emsdk_env.bat && %DIR:~0,2% && cd %DIR% && build.bat"
 cd ..
 
-@copy build\*.* examples\src\js /Y
+@copy build\*.* examples\src\free-queue /Y
 
 cd examples
 @call cmd /C "npm run build:webpack"

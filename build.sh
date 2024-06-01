@@ -4,9 +4,9 @@
 # export EMSCRIPTENDIR=c:/emscripten/emsdk
 
 export CC=emcc
-export EMCCFLAGS="-s SINGLE_FILE=1 -s TOTAL_MEMORY=200MB -s ALLOW_MEMORY_GROWTH=0 -s EXPORTED_RUNTIME_METHODS=['callMain','ccall','cwrap'] -s INVOKE_RUN=0 -O0"
+export EMCCFLAGS="-s SINGLE_FILE=1 -s TOTAL_MEMORY=200MB -s ALLOW_MEMORY_GROWTH=0 -s EXPORTED_RUNTIME_METHODS=['callMain','ccall','cwrap'] -s INVOKE_RUN=0 -O3"
 
-rm --force build/*.*
+rm -f build/*.*
 
 cd src
 export DIR=`pwd`

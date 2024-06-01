@@ -15,11 +15,10 @@
     <title>wasmFreeQueue test html page</title>
     <style></style>
     <script type="module">
-	import initWasmFreeQueue from "./free-queue/free-queue-asm.js"
+	import initWasmFreeQueue from "./free-queue/free-queue.asm.js"
 	try {
-	    	var Module = {};
-		initWasmFreeQueue(Module);
-		window["Module"] = Module;
+	    	window["Module"] = {};
+		initWasmFreeQueue(window["Module"]);
 		window["onFreeQueueInitialize"] = () => {
 			const GetFreeQueueThreads = window["Module"].cwrap('GetFreeQueueThreads','number',[ '' ]);
 			const GetFreeQueuePointers = window["Module"].cwrap('GetFreeQueuePointers','number',[ 'number', 'string' ]);

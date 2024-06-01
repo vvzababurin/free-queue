@@ -7,9 +7,9 @@ export INSTALLDIR=../build
 export JS_FILE=free-queue.js
 export JS_FILE_TEMP=free-queue.js.temp
 export JS_FILE_PART=free-queue.js.part
-export JS_WASM_FILE=free-queue-asm.wasm
-export JS_WASM_JS_FILE=free-queue-asm.js
-export JS_WASM_WORKER_FILE=free-queue-asm.worker.js
+export JS_WASM_FILE=free-queue.asm.wasm
+export JS_WASM_JS_FILE=free-queue.asm.js
+export JS_WASM_WORKER_FILE=free-queue.asm.worker.js
 
 if [ -f $JS_FILE ]; then
 	echo Delete existing file: $JS_FILE

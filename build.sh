@@ -14,6 +14,7 @@ sh ./build.sh
 cd ..
 
 cp ./build/*.* examples/src/js
+# cp ./build/*.* examples/src
 
 cd examples
 npm run build:webpack

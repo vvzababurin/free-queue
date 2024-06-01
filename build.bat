@@ -17,6 +17,7 @@ set DIR=%cd%
 cd ..
 
 @copy build\*.* examples\src\js /Y
+rem @copy build\*.* examples\src /Y
 
 cd examples
 @call cmd /C "npm run build:webpack"

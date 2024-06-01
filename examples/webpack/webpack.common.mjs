@@ -33,6 +33,7 @@ export default {
 	      patterns: [
 //          { from: path.resolve(__dirname, 'src', 'fonts'), to: path.resolve(__dirname, 'dist', 'fonts') },
           { from: path.resolve(__dirname, 'src', 'js'), to: path.resolve(__dirname, 'dist', 'js') }
+//          { from: path.resolve(__dirname, 'src', 'module'), to: path.resolve(__dirname, 'dist', 'module') },
 //          { from: path.resolve(__dirname, 'src', 'assets'), to: path.resolve(__dirname, 'dist', 'assets') },
 //          { from: path.resolve(__dirname, 'src', 'addons'), to: path.resolve(__dirname, 'dist') },
 //          { from: path.resolve(__dirname, 'src', 'config'), to: path.resolve(__dirname, 'dist', 'config') },
@@ -42,9 +43,9 @@ export default {
     ],
     output: {
       path: path.resolve(__dirname, 'dist'),
-      filename: "[name].bundle.js",
-	    chunkFilename: "[id].bundle.js",
-	    assetModuleFilename: "[path][name].[ext]",
+      filename: "[name].bundle.js"
+//	    chunkFilename: "[id].bundle.js",
+//	    assetModuleFilename: "[path][name].[ext]",
     // publicPath: path.resolve(__dirname, 'dist/this'),
     },
     module: {
@@ -53,7 +54,7 @@ export default {
         loader: "raw-loader"
       },
       { 
-	      test: /\.(jsx|mjs)$/, 
+	test: /\.(jsx|mjs)$/, 
         exclude: /\.(node_modules|js)$/,
         use: { 
           loader: 'babel-loader',  

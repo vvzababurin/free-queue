@@ -12,6 +12,7 @@ set JS_FILE_PART=free-queue.js.part
 set JS_WASM_FILE=free-queue.wasm.wasm
 set JS_WASM_JS_FILE=free-queue.wasm.js
 set JS_WASM_WORKER_FILE=free-queue.wasm.worker.js
+set JS_WASM_HTML_FILE=free-queue.html
 
 if exist %JS_FILE% (
 	@echo Delete existing file: %JS_FILE%

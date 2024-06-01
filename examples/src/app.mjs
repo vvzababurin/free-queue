@@ -1,4 +1,4 @@
-import initWasmFreeQueue from "./js/free-queue.wasm.js"
+import initWasmFreeQueue from "./free-queue/free-queue.wasm.js"
 
 try {		
 	var Module = {};
@@ -32,7 +32,6 @@ try {
 		window["Module"].callMain("");
 		window.onFreeQueueInitialize();
 	};
-
 } 
 catch( e ) 
 {

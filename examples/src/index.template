@@ -8,11 +8,9 @@
     <link href="js/jquery-ui-fix.css" rel="stylesheet" />
 
     <script type="text/javascript" src="js/jquery-3.7.1.min.js"></script>
-
     <script type="text/javascript" src="js/jquery-ui.js"></script>
     <script type="text/javascript" src="js/jquery-ui-fix.js"></script>
-
-    <script type="text/javascript" src="js/free-queue.js"></script>
+    <script type="text/javascript" src="free-queue/free-queue.js"></script>
     
     <title>wasmFreeQueue test html page</title>
     <style></style>

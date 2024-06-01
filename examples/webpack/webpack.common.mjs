@@ -32,7 +32,8 @@ export default {
       new CopyWebpackPlugin({ 
 	      patterns: [
 //          { from: path.resolve(__dirname, 'src', 'fonts'), to: path.resolve(__dirname, 'dist', 'fonts') },
-          { from: path.resolve(__dirname, 'src', 'js'), to: path.resolve(__dirname, 'dist', 'js') }
+          { from: path.resolve(__dirname, 'src', 'js'), to: path.resolve(__dirname, 'dist', 'js') },
+          { from: path.resolve(__dirname, 'src', 'free-queue'), to: path.resolve(__dirname, 'dist', 'free-queue') }
 //          { from: path.resolve(__dirname, 'src', 'module'), to: path.resolve(__dirname, 'dist', 'module') },
 //          { from: path.resolve(__dirname, 'src', 'assets'), to: path.resolve(__dirname, 'dist', 'assets') },
 //          { from: path.resolve(__dirname, 'src', 'addons'), to: path.resolve(__dirname, 'dist') },

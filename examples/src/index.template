@@ -41,7 +41,7 @@
 				window["queue"] = FreeQueue.fromPointers( pointers );
 				if ( window["queue"] != undefined ) window["queue"].printAvailableReadAndWrite();
 			};
-			window["Module"].onRuntimeInitialized = () => { 				
+			window["Module"].onRuntimeInitialized = () => {
 				window["queue"] = undefined;
 				window["instance"] = undefined;
 				window["Module"].callMain("");

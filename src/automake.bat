@@ -45,23 +45,25 @@ if exist %JS_WASM_WORKER_FILE% (
 
 @type %JS_FILE_PART% > %JS_FILE%
 
-rem @echo|set /p = "var pthreadMainJs = 'data:application/javascript;base64," >> %JS_FILE%
-
-@echo|set /p = "var pthreadMainBlobJs = '" >> %JS_FILE%
+@echo|set /p ="var pthreadMainBlobJs='" >> %JS_FILE%
 @type %JS_WASM_WORKER_BLOB_FILE% >> %JS_FILE%
-@echo '; >> %JS_FILE%
+@echo|set /p ="';" >> %JS_FILE%
+@echo: >> %JS_FILE%
 
-fartt -q %JS_WASM_JS_FILE% "var pthreadMainJs=locateFile(\"!JS_WASM_WORKER_FILE!\")" "var pthreadMainJs=decodeBase64(pthreadMainBlobJs); var URL = (window.URL || window.webkitURL); var blob = new Blob([pthreadMainJs], {type: \"application/javascript\"});"
-fartt -q %JS_WASM_JS_FILE% "PThread.unusedWorkers.push(new Worker(pthreadMainJs))" "PThread.unusedWorkers.push(new Worker(URL.createObjectURL(blob)));"
+fartt -q %JS_WASM_JS_FILE% "var pthreadMainJs=locateFile(\"!JS_WASM_WORKER_FILE!\")" "var pthreadMainJs=decodeBase64(pthreadMainBlobJs);var URL=(window.URL||window.webkitURL);var blob=new Blob([pthreadMainJs],{type:\"application/javascript\"})"
+fartt -q %JS_WASM_JS_FILE% "PThread.unusedWorkers.push(new Worker(pthreadMainJs))" "PThread.unusedWorkers.push(new Worker(URL.createObjectURL(blob)))"
 
 @type %JS_WASM_JS_FILE% >> %JS_FILE%
+
+if exist %JS_WASM_WORKER_BLOB_FILE% (
+	@echo Delete existing file: %JS_WASM_WORKER_BLOB_FILE%
+	@del %JS_WASM_WORKER_BLOB_FILE%
+)
 
 if exist %JS_WASM_JS_FILE% (
 	@echo Delete existing file: %JS_WASM_JS_FILE%
 	@del %JS_WASM_JS_FILE%
 )
-
-rem @del %JS_WASM_WORKER_BLOB_FILE%
 
 if exist %JS_FILE% (
 	@echo Copy existing file: %JS_FILE% %INSTALLDIR%\%JS_FILE% /Y

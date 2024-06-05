@@ -8,7 +8,7 @@
 #include <pthread.h>
 #include <unistd.h> 
 
-int treads_busy = 1;
+static int treads_busy = 1;
 
 pthread_t tid_consumer = 0;
 pthread_t tid_producer = 0;
@@ -40,7 +40,7 @@ void *producer( void *arg );
 void *consumer( void *arg );
 
 static pthread_mutex_t tasks_mutex = PTHREAD_MUTEX_INITIALIZER;
-static struct FreeQueueThread memorydata;
+static struct FreeQueueThread memdata;
 
 uint32_t _getAvailableRead(
   struct FreeQueue *queue, 
@@ -160,14 +160,14 @@ void *GetFreeQueuePointers( struct FreeQueue* queue, char* data )
 
 EMSCRIPTEN_KEEPALIVE 
 int DestroyFreeQueueThreads() {
-  if ( memorydata.instance != nullptr ) {
-    memorydata.busy = 0;
+  if ( memdata.instance != nullptr ) {
+    memdata.busy = 0;
     pthread_join(tid_producer, 0);
     pthread_join(tid_consumer, 0);
-    DestroyFreeQueue( memorydata.instance );
+    DestroyFreeQueue( memdata.instance );
     tid_producer = 0;
     tid_consumer = 0;
-    memorydata.instance = nullptr;
+    memdata.instance = nullptr;
     return 1;
   }
   return 0;
@@ -177,16 +177,16 @@ EMSCRIPTEN_KEEPALIVE
 int CreateFreeQueueThreads() {
   uint32_t channel_count = 2;
   uint32_t length = 1764;
-  if ( memorydata.instance == nullptr ) {
-    memorydata.busy = 1;
-    memorydata.instance = CreateFreeQueue( length * 500, channel_count );
+  if ( memdata.instance == nullptr ) {
+    memdata.busy = 1;
+    memdata.instance = CreateFreeQueue( length * 500, channel_count );
     int p = 0;
-    p = pthread_create( &tid_consumer, 0, consumer, &memorydata );
+    p = pthread_create( &tid_consumer, 0, consumer, &memdata );
     if ( p ) {
       return -1;
     }
     printf( "CreateThreads: consumer thread created...\n" );
-    p = pthread_create( &tid_producer, 0, producer, &memorydata );
+    p = pthread_create( &tid_producer, 0, producer, &memdata );
     if ( p ) {
       return -1;
     }
@@ -198,8 +198,8 @@ int CreateFreeQueueThreads() {
 
 EMSCRIPTEN_KEEPALIVE 
 struct FreeQueue *GetFreeQueueThreads() {
-  if ( memorydata.instance != nullptr ) {
-    return memorydata.instance;
+  if ( memdata.instance != nullptr ) {
+    return memdata.instance;
   }
   return nullptr;
 }
@@ -333,8 +333,8 @@ void *consumer( void *arg )
 
 int main( int argc, char* argv[] )
 {
-  memorydata.instance = nullptr;
-  memorydata.busy = 1;
+  memdata.instance = nullptr;
+  memdata.busy = 1;
   return CreateFreeQueueThreads();
 }
 

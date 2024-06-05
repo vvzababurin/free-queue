@@ -47,12 +47,17 @@ echo -n "var pthreadMainBlobJs = '" >> $JS_FILE
 cat $JS_WASM_WORKER_BLOB_FILE >> $JS_FILE
 
 echo -n "';" >> $JS_FILE
-echo -n >> $JS_FILE
+echo -n " " >> $JS_FILE
 
-sed -i -e "s/var pthreadMainJs=locateFile(\"$JS_WASM_WORKER_FILE\")/var pthreadMainJs = decodeBase64(pthreadMainBlobJs); var URL = (window.URL || window.webkitURL); var blob = new Blob([pthreadMainJs], {type: \"application\/javascript\"});/g" $JS_WASM_JS_FILE
-sed -i -e "s/PThread.unusedWorkers.push(new Worker(pthreadMainJs))/PThread.unusedWorkers.push(new Worker(URL.createObjectURL(blob)));/g" $JS_WASM_JS_FILE
+sed -i -e "s/var pthreadMainJs=locateFile(\"$JS_WASM_WORKER_FILE\")/var pthreadMainJs=decodeBase64(pthreadMainBlobJs);var URL=(window.URL||window.webkitURL);var blob=new Blob([pthreadMainJs],{type:\"application\/javascript\"})/g" $JS_WASM_JS_FILE
+sed -i -e "s/PThread.unusedWorkers.push(new Worker(pthreadMainJs))/PThread.unusedWorkers.push(new Worker(URL.createObjectURL(blob)))/g" $JS_WASM_JS_FILE
 
 cat $JS_WASM_JS_FILE >> $JS_FILE
+
+if [ -f $JS_WASM_WORKER_BLOB_FILE ]; then
+	echo Delete existing file: $JS_WASM_WORKER_BLOB_FILE
+	rm $JS_WASM_WORKER_BLOB_FILE
+fi
 
 if [ -f $JS_WASM_JS_FILE ]; then
 	echo Delete existing file: $JS_WASM_JS_FILE

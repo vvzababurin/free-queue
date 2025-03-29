@@ -16,6 +16,11 @@ cd ..
 cp build/*.* examples/src/js
 
 cd examples
+
+if [ ! -d ./node_modules ]; then
+    npm install
+fi
+
 npm run build:webpack
 npm run start:webpack
 cd ..

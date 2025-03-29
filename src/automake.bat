@@ -6,12 +6,12 @@ set DIR=%cd%
 
 set INSTALLDIR=..\build
 
-set JS_FILE=free-queue.js
-set JS_FILE_TEMP=free-queue.js.temp
-set JS_FILE_PART=free-queue.js.part
-set JS_WASM_FILE=free-queue.wasm.wasm
-set JS_WASM_JS_FILE=free-queue.wasm.js
-set JS_WASM_WORKER_FILE=free-queue.wasm.worker.js
+set JS_FILE=freequeue.js
+set JS_FILE_TEMP=freequeue.js.temp
+set JS_FILE_PART=freequeue.js.part
+set JS_WASM_FILE=freequeue.wasm.wasm
+set JS_WASM_JS_FILE=freequeue.wasm.js
+set JS_WASM_WORKER_FILE=freequeue.wasm.worker.js
 
 if exist %JS_FILE% (
 	@echo Delete existing file: %JS_FILE%
@@ -33,8 +33,8 @@ if exist %JS_WASM_FILE% (
 	@del %JS_WASM_FILE%
 )
 
-@echo %CC%: free_queue.cpp -Llib -I../include -Iinclude -pthread %EMCCFLAGS% -o %JS_WASM_JS_FILE%
-@call %CC% free_queue.cpp -Llib -I../include -Iinclude -pthread %EMCCFLAGS% -o %JS_WASM_JS_FILE%
+@echo %CC%: freequeue.cpp -Llib -I../include -Iinclude -pthread %EMCCFLAGS% -o %JS_WASM_JS_FILE%
+@call %CC% freequeue.cpp -Llib -I../include -Iinclude -pthread %EMCCFLAGS% -o %JS_WASM_JS_FILE%
 
 @type %JS_FILE_PART% >> %JS_FILE%
 

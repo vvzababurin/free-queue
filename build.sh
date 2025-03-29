@@ -19,8 +19,11 @@ cd examples
 
 if [ ! -d ./node_modules ]; then
     npm install
+    npm run build:webpack
+    npm run start:webpack
+else 
+    npm run build:webpack
+    npm run start:webpack
 fi
 
-npm run build:webpack
-npm run start:webpack
 cd ..

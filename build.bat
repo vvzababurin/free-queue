@@ -24,9 +24,12 @@ cd examples
 
 if not exist node_modules (
     @call cmd /C "npm install"
+    @call cmd /C "npm run build:webpack"
+    @call cmd /C "npm run start:webpack"
+) else (
+    @call cmd /C "npm run build:webpack"
+    @call cmd /C "npm run start:webpack"
 )
 
-@call cmd /C "npm run build:webpack"
-@call cmd /C "npm run start:webpack"
 cd ..
 

@@ -7,9 +7,13 @@ rem Emscripten SDK...
 set EMSCRIPTENDIR=d:/emscripten/emsdk
 
 set CC=emcc
-set EMCCFLAGS=-s SINGLE_FILE=0 -s TOTAL_MEMORY=200MB -s ALLOW_MEMORY_GROWTH=0 -s EXPORTED_RUNTIME_METHODS=['callMain','ccall','cwrap'] -s INVOKE_RUN=0 -O3
+set EMCCFLAGS=-s SINGLE_FILE=1 -s TOTAL_MEMORY=200MB -s ALLOW_MEMORY_GROWTH=0 -s EXPORTED_RUNTIME_METHODS=['callMain','ccall','cwrap'] -s INVOKE_RUN=0 -O3
 
-@del build\*.* /F /Q
+
+if exist build\*.* (
+	echo Empty 'build\*.*' directory
+	@del build\*.* /F /Q
+)
 
 cd src
 set DIR=%cd%
@@ -17,8 +21,6 @@ set DIR=%cd%
 cd ..
 
 @copy build\*.* examples\src\js /Y
-
-
 
 cd examples
 

@@ -89,7 +89,7 @@ void FQ_FreeQueueSetWriteCounter(struct FQ_FreeQueue* queue, size_t counter)
 }
 
 EMSCRIPTEN_KEEPALIVE
-struct FQ_FreeQueue *FQ_FreeQueueCreate(uint32_t length, uint32_t channel_count)
+void *FQ_FreeQueueCreate(uint32_t length, uint32_t channel_count)
 {
   struct FQ_FreeQueue *queue = (struct FQ_FreeQueue *)malloc(sizeof(struct FQ_FreeQueue));
   queue->buffer_length = length + 1;
@@ -106,7 +106,7 @@ struct FQ_FreeQueue *FQ_FreeQueueCreate(uint32_t length, uint32_t channel_count)
       queue->channel_data[i][j] = 0.0f;
     }
   }
-  return queue;
+  return (void*)queue;
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -403,5 +403,10 @@ void FQ_PrintQueueAddresses(struct FQ_FreeQueue *queue)
     printf("state[1]    : %p   uint: %zu\n",
         &queue->state[1], (size_t)&queue->state[1]);
   }
+}
+
+int main( int argc, char* argv[] )
+{
+    return 0;
 }
 

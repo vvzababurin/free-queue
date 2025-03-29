@@ -24,7 +24,7 @@ enum FQ_FreeQueueState {
   WRITE = 1
 };
 
-struct FQ_FreeQueue *FQ_FreeQueueCreate(uint32_t length, uint32_t channel_count);
+void *FQ_FreeQueueCreate(uint32_t length, uint32_t channel_count);
 bool FQ_FreeQueueClear(struct FQ_FreeQueue* queue);
 void FQ_FreeQueueResetReadCounter(struct FQ_FreeQueue* queue);
 void FQ_FreeQueueResetWriteCounter(struct FQ_FreeQueue* queue);

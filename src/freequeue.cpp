@@ -407,6 +407,7 @@ void FQ_PrintQueueAddresses(struct FQ_FreeQueue *queue)
 
 int main( int argc, char* argv[] )
 {
+    printf("WASM module");
     return 0;
 }
 

@@ -30,7 +30,6 @@
 				window["queue"] = FQ_FreeQueueCreate( 44100 * 10, 1 );
 
 				console.log( "queue: " + window["queue"] );
-				alert( window["queue"] );
 			};
 			window["Module"].onRuntimeInitialized = () => { 				
 				window["queue"] = undefined;

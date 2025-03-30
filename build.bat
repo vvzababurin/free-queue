@@ -7,7 +7,7 @@ rem Emscripten SDK...
 set EMSCRIPTENDIR=d:/emscripten/emsdk
 
 set CC=emcc
-set EMCCFLAGS=-s SINGLE_FILE=1 -s TOTAL_MEMORY=200MB -s ALLOW_MEMORY_GROWTH=0 -s EXPORTED_RUNTIME_METHODS=['callMain','ccall','cwrap'] -s INVOKE_RUN=0 -O3
+set EMCCFLAGS=-s SINGLE_FILE=1 -s TOTAL_MEMORY=200MB -s ALLOW_MEMORY_GROWTH=0 -s EXPORTED_RUNTIME_METHODS=['callMain','ccall','cwrap'] -s INVOKE_RUN=1 -O3
 
 
 if exist build\*.* (

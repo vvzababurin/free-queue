@@ -5,10 +5,14 @@
 #define __AIENGINE_FREEQUEUE__
 
 #include <atomic>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h> 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct FQ_FreeQueue {
   uint32_t buffer_length;
@@ -43,5 +47,10 @@ size_t FQ_FreeQueuePullFront(struct FQ_FreeQueue* queue, float** output, size_t 
 size_t FQ_FreeQueuePullFrom(struct FQ_FreeQueue* queue, float** input, size_t begin_index, size_t block_length, bool increment = true);
 void FQ_PrintQueueInfo(struct FQ_FreeQueue *queue);
 void FQ_PrintQueueAddresses(struct FQ_FreeQueue *queue);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif // __AIENGINE_FREEQUEUE__

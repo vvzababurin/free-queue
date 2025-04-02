@@ -12,62 +12,134 @@
     <script type="text/javascript" src="js/jquery-ui.js"></script>
     <script type="text/javascript" src="js/jquery-ui-fix.js"></script>
 
-    <script type="text/javascript" src="js/freequeue.js"></script>
-    <script type="text/javascript" src="js/freequeue.wasm.js"></script>
-
     <title>wasmFreeQueue test html page</title>
     <style></style>
 
-    <script defer type="text/javascript">
+    <script type="module">
+
+		import initWasmFreeQueue from "./js/freequeue.asm.js"
+
+		const ChannelCount = 2;
+
+		globalThis["LFreeQueue"] = {};
+
+		globalThis["onFreeQueueInitialize"] = () => {
+			const FQ_FreeQueueCreate = globalThis["LFreeQueue"].cwrap('FQ_FreeQueueCreate','number',[ 'number', 'number' ]);
+			const FQ_GetFreeQueuePointers = globalThis["LFreeQueue"].cwrap('FQ_GetFreeQueuePointers','number',[ 'number', 'string' ]);
+
+			const FQ_FreeQueueGetReadCounter = globalThis["LFreeQueue"].cwrap('FQ_FreeQueueGetReadCounter','number',[ 'number' ]);
+			const FQ_FreeQueueGetWriteCounter = globalThis["LFreeQueue"].cwrap('FQ_FreeQueueGetWriteCounter','number',[ 'number' ]);
+
+			globalThis["queue"] = FQ_FreeQueueCreate( 44100 * 10, ChannelCount );
+		};
+
+		globalThis["LFreeQueue"].onRuntimeInitialized = () => { 				
+			globalThis["queue"] = undefined;
+
+			globalThis["LFreeQueue"].callMain("");
+			globalThis.onFreeQueueInitialize();
+
+			console.log( "queue: pointer = " + globalThis["queue"] );
+		};
+
+		initWasmFreeQueue( globalThis["LFreeQueue"] );
+
 		jQuery(document).ready(function () {
-			window["onFreeQueueInitialize"] = () => {
-				const FQ_FreeQueueCreate = window["Module"].cwrap('FQ_FreeQueueCreate','number',[ 'number', 'number' ]);
-				const FQ_GetFreeQueuePointers = window["Module"].cwrap('FQ_GetFreeQueuePointers','number',[ 'number', 'string' ]);
 
-				const FQ_FreeQueueGetReadCounter = window["Module"].cwrap('FQ_FreeQueueGetReadCounter','number',[ 'number' ]);
-				const FQ_FreeQueueGetWriteCounter = window["Module"].cwrap('FQ_FreeQueueGetWriteCounter','number',[ 'number' ]);
-
-				window["queue"] = FQ_FreeQueueCreate( 44100 * 10, 1 );
-
-				console.log( "queue: " + window["queue"] );
-			};
-			window["Module"].onRuntimeInitialized = () => { 				
-				window["queue"] = undefined;
-				window["instance"] = undefined;
-				window.onFreeQueueInitialize();
-			};
 			$('#startTest1').click(function() {
-				const CreateFreeQueueThreads = Module.cwrap('CreateFreeQueueThreads','number',[ '' ]);
-				const r = CreateFreeQueueThreads();
-				if ( r == 1 ) {
-					window.onFreeQueueInitialize();
+
+				const FQ_FreeQueuePush = globalThis["LFreeQueue"].cwrap('FQ_FreeQueuePush','boolean',[ 'number', 'number', 'number' ]);
+
+				let increment = 0.0001;
+				let data = new Float32Array( 1764 * ChannelCount );
+
+				for ( let i = 0; i < 1764 * ChannelCount; i++ ) 
+				{
+					data[i] = 0.001 + increment * i;
 				}
+
+				let nDataBytes = data.length * data.BYTES_PER_ELEMENT;
+				let dataPtr = globalThis["LFreeQueue"]._malloc( nDataBytes );
+
+				let dataHeap = new Float32Array( globalThis["LFreeQueue"].HEAPF32.buffer, dataPtr, nDataBytes);
+				dataHeap.set( new Float32Array( data.buffer ) );
+
+				let pointers = new Uint32Array( ChannelCount );
+				for (let i = 0; i < pointers.length; i++) {
+					pointers[i] = dataPtr + i * data.BYTES_PER_ELEMENT * 1764;
+				}
+
+				let nPointerBytes = pointers.length * pointers.BYTES_PER_ELEMENT
+				let pointerPtr = globalThis["LFreeQueue"]._malloc( nPointerBytes );
+
+				let pointerHeap = new Uint8Array( globalThis["LFreeQueue"].HEAPU8.buffer, pointerPtr, nPointerBytes );
+				pointerHeap.set( new Uint8Array( pointers.buffer ) );
+
+				FQ_FreeQueuePush( globalThis["queue"], pointerHeap.byteOffset, 1764 );
+
+				const FQ_PrintQueueInfo = globalThis["LFreeQueue"].cwrap('FQ_PrintQueueInfo','',[ 'number' ]);
+				FQ_PrintQueueInfo( globalThis["queue"] );
+
+				globalThis["LFreeQueue"]._free( pointerHeap.byteOffset );
+				globalThis["LFreeQueue"]._free( dataHeap.byteOffset );
+
+
+/*
+
+
+Module._free(pointerHeap.byteOffset);
+Module._free(dataHeap.byteOffset);
+
+				const ddd = [ ChannelCount ];
+
+				ddd[0] = new Float32Array(1764);
+
+				for ( let i = 0; i < 1764; i++ ) {
+					ddd[0][i] = 0.001 + increment * i;
+				}
+
+
+				let r = FQ_FreeQueuePush( globalThis["queue"], ddd, 1764 );
+
+				console.log( "Result: " + r );
+
+
+*/				
+
+//				FQ_FreeQueuePush
+//				let FQ_GetFreeQueuePointers = globalThis["LFreeQueue"].cwrap('FQ_GetFreeQueuePointers','number',[ 'number', 'string' ]);
+
+//				globalThis["LFreeQueue"] = FQ_FreeQueueCreate( 44100 * 10, 1 );
+//				console.log( "queue: " + globalThis["queue"] );
 			});
+
 			$('#startTest2').click(function() {
 				const DestroyFreeQueueThreads = Module.cwrap('DestroyFreeQueueThreads','number',[ '' ]);
 				const r = DestroyFreeQueueThreads();
 				if ( r == 1 ) {
-					window["queue"] = undefined;
-					window["instance"] = undefined;
+					globalThis["queue"] = undefined;
+					globalThis["instance"] = undefined;
 				}
 			});
+
 			$('#startTest3').click(function() {
-				const PrintQueueInfo = window["Module"].cwrap('PrintQueueInfo','',[ 'number' ]);
-				if ( window["instance"] != undefined ) {	
-					PrintQueueInfo( window["instance"] );
-					if ( window["queue"] != undefined ) window["queue"].printAvailableReadAndWrite();
+				const PrintQueueInfo = globalThis["LFreeQueue"].cwrap('PrintQueueInfo','',[ 'number' ]);
+				if ( globalThis["instance"] != undefined ) {	
+					PrintQueueInfo( globalThis["instance"] );
+					if ( globalThis["queue"] != undefined ) globalThis["queue"].printAvailableReadAndWrite();
 				}
 			});
+
 			$('#startTest4').click(function() {
-				const PrintQueueInfo = window["Module"].cwrap('PrintQueueInfo','',[ 'number' ]);
+				const PrintQueueInfo = globalThis["LFreeQueue"].cwrap('PrintQueueInfo','',[ 'number' ]);
 				const d = [2];
 				d[0] = new Float64Array(1764);
 				d[1] = new Float64Array(1764);
-				if ( window["queue"] != undefined ) {
-					const r = window["queue"].pull( d, 1764 );
+				if ( globalThis["queue"] != undefined ) {
+					const r = globalThis["queue"].pull( d, 1764 );
 					console.log( "pull: " + r );
 					console.log( "pull data: " + d );
-					window["queue"].printAvailableReadAndWrite();
+					globalThis["queue"].printAvailableReadAndWrite();
 				}
 			});
 		});
@@ -75,7 +147,7 @@
 </head>
 
 <body>
-	<button id="startTest1">CreateThreads</button>
+	<button id="startTest1">FQ_FreeQueueCreate</button>
 	<button id="startTest2">DestroyThreads</button>
 	<button id="startTest3">PrintVarStack</button>
 	<button id="startTest4">PullData</button>

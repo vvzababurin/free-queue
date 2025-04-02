@@ -1,9 +1,9 @@
 import path from 'path';
 import webpack from 'webpack';
 
-import HtmlWebpackPlugin from 'html-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import RemoveWebpackPlugin from 'remove-files-webpack-plugin';
+import TerserPlugin from 'terser-webpack-plugin';
 
 const __dirname = './';
 
@@ -17,28 +17,28 @@ export default {
       maxEntrypointSize: 512000,
       maxAssetSize: 512000
     },
+    optimization: {
+      minimizer: [
+        new TerserPlugin({
+          exclude: /\.asm\.js$/, // Игнорировать файлы с .asm.js
+        }),
+      ],
+    },
     plugins: [
-      new HtmlWebpackPlugin({ 
-        title: 'WebGPU Test Page',
-        filename: 'index.html',
-        template: './src/index.template'
-      }),
       new RemoveWebpackPlugin({
         before: {
           log: false,
           include: [ 'dist' ]
         }
       }),
-      new CopyWebpackPlugin({ 
-	      patterns: [
-//          { from: path.resolve(__dirname, 'src', 'fonts'), to: path.resolve(__dirname, 'dist', 'fonts') },
-          { from: path.resolve(__dirname, 'src', 'js'), to: path.resolve(__dirname, 'dist', 'js') }
-//          { from: path.resolve(__dirname, 'src', 'assets'), to: path.resolve(__dirname, 'dist', 'assets') },
-//          { from: path.resolve(__dirname, 'src', 'addons'), to: path.resolve(__dirname, 'dist') },
-//          { from: path.resolve(__dirname, 'src', 'config'), to: path.resolve(__dirname, 'dist', 'config') },
-//          { from: path.resolve(__dirname, 'src', 'sounds'), to: path.resolve(__dirname, 'dist', 'sounds') }
-        ]
-      })
+	new CopyWebpackPlugin({ 
+		patterns: [
+			{ from: path.resolve(__dirname, 'src', 'js'), to: path.resolve(__dirname, 'dist', 'js') },
+		        { from: path.resolve(__dirname, 'src', 'index.template'), to: path.resolve(__dirname, 'dist', 'index.html') }
+		//      { from: path.resolve(__dirname, 'src', 'config'), to: path.resolve(__dirname, 'dist', 'config') },
+		//      { from: path.resolve(__dirname, 'src', 'sounds'), to: path.resolve(__dirname, 'dist', 'sounds') }
+		]
+	})
     ],
     output: {
       path: path.resolve(__dirname, 'dist'),
@@ -53,7 +53,7 @@ export default {
         loader: "raw-loader"
       },
       { 
-	      test: /\.(jsx|mjs)$/, 
+        test: /\.(jsx|mjs)$/, 
         exclude: /\.(node_modules|js)$/,
         use: { 
           loader: 'babel-loader',  

@@ -1,9 +1,19 @@
 // aiengine.cpp: определяет точку входа для консольного приложения.
 //
 
-#include <stdio.h>
 #include <emscripten.h>
+// #include <emscripten/wasm_worker.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h> 
+
 #include "freequeue.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 uint32_t _getAvailableRead( struct FQ_FreeQueue *queue, uint32_t read_index, uint32_t write_index ) 
 {  
@@ -203,7 +213,6 @@ bool FQ_FreeQueuePushFront(struct FQ_FreeQueue* queue, float** input, size_t blo
     return false;
 }
 
-//*
 EMSCRIPTEN_KEEPALIVE
 bool FQ_FreeQueuePushBack(struct FQ_FreeQueue* queue, float** input, size_t block_length)
 {
@@ -405,9 +414,14 @@ void FQ_PrintQueueAddresses(struct FQ_FreeQueue *queue)
   }
 }
 
+#ifdef __cplusplus
+}
+#endif
+
+
 int main( int argc, char* argv[] )
 {
-    printf("WASM module");
+    printf("WASM module initialization\n");
     return 0;
 }
 

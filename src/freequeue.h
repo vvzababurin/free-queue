@@ -28,6 +28,10 @@ enum FQ_FreeQueueState {
   WRITE = 1
 };
 
+void *FQ_malloc(size_t size);
+void *FQ_realloc( void* ptr, size_t new_size );
+void FQ_free( void* ptr );
+
 void *FQ_FreeQueueCreate(uint32_t length, uint32_t channel_count);
 bool FQ_FreeQueueClear(struct FQ_FreeQueue* queue);
 void FQ_FreeQueueResetReadCounter(struct FQ_FreeQueue* queue);

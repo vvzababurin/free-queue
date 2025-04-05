@@ -3,7 +3,7 @@ import webpack from 'webpack';
 
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import RemoveWebpackPlugin from 'remove-files-webpack-plugin';
-import TerserPlugin from 'terser-webpack-plugin';
+// import TerserPlugin from 'terser-webpack-plugin';
 
 const __dirname = './';
 
@@ -17,6 +17,7 @@ export default {
       maxEntrypointSize: 512000,
       maxAssetSize: 512000
     },
+/*
     optimization: {
       minimizer: [
         new TerserPlugin({
@@ -24,6 +25,7 @@ export default {
         }),
       ],
     },
+*/
     plugins: [
       new RemoveWebpackPlugin({
         before: {

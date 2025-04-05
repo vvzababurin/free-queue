@@ -15,223 +15,94 @@
  * worker renders audio data to fill in the queue.
  */
 
-class FreeQueue {
+import initWasmFreeQueue from "./freequeue.asm.js";
 
-  /**
-   * An index set for shared state fields. Requires atomic access.
-   * @enum {number}
-   */
-  States = {
-    /** @type {number} A shared index for reading from the queue. (consumer) */
-    READ: 0,
-    /** @type {number} A shared index for writing into the queue. (producer) */
-    WRITE: 1,  
-  }
-  
-  /**
-   * FreeQueue constructor. A shared buffer created by this constuctor
-   * will be shared between two threads.
-   *
-   * @param {number} size Frame buffer length.
-   * @param {number} channelCount Total channel count.
-   */
-  constructor(size, channelCount = 1) {
-    this.states = new Uint32Array(
-      new SharedArrayBuffer(
-        Object.keys(this.States).length * Uint32Array.BYTES_PER_ELEMENT
-      )
-    );
-    /**
-     * Use one extra bin to distinguish between the read and write indices 
-     * when full. See Tim Blechmann's |boost::lockfree::spsc_queue|
-     * implementation.
-     */
-    this.bufferLength = size + 1;
-    this.channelCount = channelCount;
-    this.channelData = [];
-    for (let i = 0; i < channelCount; i++) {
-      this.channelData.push(
-        new Float64Array(
-          new SharedArrayBuffer(
-            this.bufferLength * Float64Array.BYTES_PER_ELEMENT
-          )
-        )
-      );
-    }
-  }
+class FreeQueue 
+{
+		constructor(frequency, seconds, channels)
+		{
+			this.LFreeQueue = {};
 
-  /**
-   * Helper function for creating FreeQueue from pointers.
-   * @param {FreeQueuePointers} queuePointers 
-   * An object containing various pointers required to create FreeQueue
-   *
-   * interface FreeQueuePointers {
-   *   memory: WebAssembly.Memory;   // Reference to WebAssembly Memory
-   *   bufferLengthPointer: number;
-   *   channelCountPointer: number;
-   *   statePointer: number;
-   *   channelDataPointer: number;
-   * }
-   * @returns FreeQueue
-   */
-  static fromPointers(queuePointers) {
+			this.QueueFrequency = frequency;
+			this.QueueSeconds = seconds;
+			this.QueueChannels = channels;
+			this.CreatedFreeQueue = undefined;
+			this.isInit = false;
 
-    const queue = new FreeQueue(0, 0);
+			this.LFreeQueue.onRuntimeInitialized = () => { 				
+				this.LFreeQueue.callMain("");
+				console.log( "onRuntimeInitialized\n" );
+			};
 
-    const HEAPU32 = new Uint32Array(queuePointers.memory.buffer);
-    const HEAPF64 = new Float64Array(queuePointers.memory.buffer);
+			initWasmFreeQueue( this.LFreeQueue ).then( async (LFreeQueue) => {
+				this.FQ_malloc = LFreeQueue.cwrap('FQ_malloc','number',[ 'number' ]);
+				this.FQ_remalloc = LFreeQueue.cwrap('FQ_realloc','number',[ 'number', 'number' ]);
+				this.FQ_free = LFreeQueue.cwrap('FQ_free','',[ 'number' ]);
 
-    const bufferLength = HEAPU32[queuePointers.bufferLengthPointer / 4];
-    const channelCount = HEAPU32[queuePointers.channelCountPointer / 4];
+				this.FQ_FreeQueueCreate = LFreeQueue.cwrap('FQ_FreeQueueCreate','number',[ 'number', 'number' ]);
+				this.FQ_FreeQueuePush = LFreeQueue.cwrap('FQ_FreeQueuePush','boolean',[ 'number', 'number', 'number' ]);
 
-    const states = HEAPU32.subarray(
-        HEAPU32[queuePointers.statePointer / 4] / 4,
-        HEAPU32[queuePointers.statePointer / 4] / 4 + 2
-    );
+				this.FQ_PrintQueueInfo = LFreeQueue.cwrap('FQ_PrintQueueInfo','',[ 'number' ]);
 
-    const channelData = [];
-    for (let i = 0; i < channelCount; i++) {
-      channelData.push(
-          new Float64Array( queuePointers.memory.buffer, HEAPU32[HEAPU32[queuePointers.channelDataPointer / 4] / 4 + i], bufferLength )
-      );
-    }
-    
-    queue.bufferLength = bufferLength;
-    queue.channelCount = channelCount;
-    queue.states = states;
-    queue.channelData = channelData;
+				this.FQ_GetFreeQueuePointers = LFreeQueue.cwrap('FQ_GetFreeQueuePointers','number',[ 'number', 'string' ]);
 
-    return queue;
-  }
+				this.FQ_FreeQueueGetReadCounter = LFreeQueue.cwrap('FQ_FreeQueueGetReadCounter','number',[ 'number' ]);
+				this.FQ_FreeQueueGetWriteCounter = LFreeQueue.cwrap('FQ_FreeQueueGetWriteCounter','number',[ 'number' ]);
 
-  /**
-   * Pushes the data into queue. Used by producer.
-   *
-   * @param {Float64Array[]} input Its length must match with the channel
-   *   count of this queue.
-   * @param {number} blockLength Input block frame length. It must be identical
-   *   throughout channels.
-   * @return {boolean} False if the operation fails.
-   */
-  push(input, blockLength) {
-    const currentRead = Atomics.load(this.states, this.States.READ);
-    const currentWrite = Atomics.load(this.states, this.States.WRITE);
-    if (this._getAvailableWrite(currentRead, currentWrite) < blockLength) {
-      return false;
-    }
-    let nextWrite = currentWrite + blockLength;
-    if (this.bufferLength < nextWrite) {
-      nextWrite -= this.bufferLength;
-      for (let channel = 0; channel < this.channelCount; channel++) {
-        const blockA = this.channelData[channel].subarray(currentWrite);
-        const blockB = this.channelData[channel].subarray(0, nextWrite);
-        blockA.set(input[channel].subarray(0, blockA.length));
-        blockB.set(input[channel].subarray(blockA.length));
-      }
-    } else {
-      for (let channel = 0; channel < this.channelCount; channel++) {
-        this.channelData[channel]
-            .subarray(currentWrite, nextWrite)
-            .set(input[channel].subarray(0, blockLength));
-      }
-      if (nextWrite === this.bufferLength) nextWrite = 0;
-    }
-    Atomics.store(this.states, this.States.WRITE, nextWrite);
-    return true;
-  }
+				this.CreatedFreeQueue = this.FQ_FreeQueueCreate( this.QueueFrequency * this.QueueSeconds, this.QueueChannels );
 
-  /**
-   * Pulls data out of the queue. Used by consumer.
-   *
-   * @param {Float64Array[]} output Its length must match with the channel
-   *   count of this queue.
-   * @param {number} blockLength output block length. It must be identical
-   *   throughout channels.
-   * @return {boolean} False if the operation fails.
-   */
-  pull(output, blockLength) {
-    const currentRead = Atomics.load(this.states, this.States.READ);
-    const currentWrite = Atomics.load(this.states, this.States.WRITE);
-    if (this._getAvailableRead(currentRead, currentWrite) < blockLength) {
-      return false;
-    }
-    let nextRead = currentRead + blockLength;
-    if (this.bufferLength < nextRead) {
-      nextRead -= this.bufferLength;
-      for (let channel = 0; channel < this.channelCount; channel++) {
-        const blockA = this.channelData[channel].subarray(currentRead);
-        const blockB = this.channelData[channel].subarray(0, nextRead);
-        output[channel].set(blockA);
-        output[channel].set(blockB, blockA.length);
-      }
-    } else {
-      for (let channel = 0; channel < this.channelCount; ++channel) {
-        output[channel].set(
-            this.channelData[channel].subarray(currentRead, nextRead)
-        );
-      }
-      if (nextRead === this.bufferLength) {
-        nextRead = 0;
-      }
-    }
-    Atomics.store(this.states, this.States.READ, nextRead);
-    return true;
-  }
-  /**
-   * Helper function for debugging.
-   * Prints currently available read and write.
-   */
-  printAvailableReadAndWrite() {
-    const currentRead = Atomics.load(this.states, this.States.READ);
-    const currentWrite = Atomics.load(this.states, this.States.WRITE);
-    console.log(this, {
-        availableRead: this._getAvailableRead(currentRead, currentWrite),
-        availableWrite: this._getAvailableWrite(currentRead, currentWrite),
-    });
-  }
-  /**
-   * 
-   * @returns {number} number of samples available for read
-   */
-  getAvailableSamples() {
-    const currentRead = Atomics.load(this.states, this.States.READ);
-    const currentWrite = Atomics.load(this.states, this.States.WRITE);
-    return this._getAvailableRead(currentRead, currentWrite);
-  }
-  /**
-   * 
-   * @param {number} size 
-   * @returns boolean. if frame of given size is available or not.
-   */
-  isFrameAvailable(size) {
-    return this.getAvailableSamples() >= size;
-  }
+				this.isInit = true;
 
-  /**
-   * @return {number}
-   */
-  getBufferLength() {
-    return this.bufferLength - 1;
-  }
+				console.log( "initWasmFreeQueue\n" );
+			});
+		}
+		Wait() {
+			while ( true )
+			{
+				let id = setTimeout( function() {}, 100 );
+				clearTimeout( id );
+				if ( this.isInit == true ) {
+					break;
+				}
+			}
+		}
+		FreeQueuePush(input, blocklen) 
+		{
+			console.log( "FreeQueuePush\n" );
 
-  _getAvailableWrite(readIndex, writeIndex) {
-    if (writeIndex >= readIndex)
-        return this.bufferLength - writeIndex + readIndex - 1;
-    return readIndex - writeIndex - 1;
-  }
+			let nDataBytes = input.length * input.BYTES_PER_ELEMENT;
+			let dataPtr = this.FQ_malloc( nDataBytes );
 
-  _getAvailableRead(readIndex, writeIndex) {
-    if (writeIndex >= readIndex) return writeIndex - readIndex;
-    return writeIndex + this.bufferLength - readIndex;
-  }
+			let dataHeap = new Float32Array( this.LFreeQueue.HEAPF32.buffer, dataPtr, nDataBytes);
+			dataHeap.set( new Float32Array( input.buffer ) );
 
-  _reset() {
-    for (let channel = 0; channel < this.channelCount; channel++) {
-      this.channelData[channel].fill(0);
-    }
-    Atomics.store(this.states, this.States.READ, 0);
-    Atomics.store(this.states, this.States.WRITE, 0);
-  }
-}
+			let pointers = new Uint32Array( this.QueueChannels );
+			for (let i = 0; i < pointers.length; i++) {
+				pointers[i] = dataPtr + i * input.BYTES_PER_ELEMENT * blocklen;
+			}
 
-// export default FreeQueue;
+			let nPointerBytes = pointers.length * pointers.BYTES_PER_ELEMENT
+			let pointerPtr = this.FQ_malloc( nPointerBytes );
+
+			let pointerHeap = new Uint8Array(this.LFreeQueue.HEAPU8.buffer, pointerPtr, nPointerBytes );
+			pointerHeap.set( new Uint8Array( pointers.buffer ) );
+
+			this.FQ_FreeQueuePush( this.CreatedFreeQueue, pointerHeap.byteOffset, this.QueueChannels );
+			this.PrintQueueInfo();
+
+			this.FQ_free( pointerHeap.byteOffset );
+			this.FQ_free( dataHeap.byteOffset );
+
+			return true;
+		}
+	
+		PrintQueueInfo() 
+		{
+			console.log( "PrintQueueInfo\n" );
+
+			this.FQ_PrintQueueInfo( this.CreatedFreeQueue );
+		}
+	
+};
+
+export default FreeQueue;

@@ -30,6 +30,26 @@ uint32_t _getAvailableWrite( struct FQ_FreeQueue *queue, uint32_t read_index,  u
   return read_index - write_index - 1;
 }
 
+
+EMSCRIPTEN_KEEPALIVE
+void *FQ_malloc(size_t size)
+{
+	return malloc( size );
+}
+
+EMSCRIPTEN_KEEPALIVE
+void *FQ_realloc( void* ptr, size_t new_size )
+{
+	return realloc( ptr, new_size );
+}
+
+EMSCRIPTEN_KEEPALIVE
+void FQ_free( void* ptr )
+{
+	free( ptr );
+}
+
+
 EMSCRIPTEN_KEEPALIVE
 bool FQ_FreeQueueClear(struct FQ_FreeQueue* queue)
 {

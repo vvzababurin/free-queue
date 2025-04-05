@@ -18,24 +18,43 @@
     <script defer type="module">
 	import FreeQueue from "./js/freequeue.js";
 
-	let increment = 0.0001;
-	let blocklen = 1764;
-	let channels = 2;
+	globalThis["queue"] = new FreeQueue( 44100, 10, 2 );
 
-	globalThis["queue"] = new FreeQueue( 44100, 10, channels );
-	globalThis["queue"].Wait();
+	document.getElementById("startTest1").addEventListener("click", (e) => {
+		let increment = 0.0001;
+		let blocklen = 1764;
+		let channels = 2;
 
-	let data = new Float32Array( blocklen * channels );
-	for ( let i = 0; i < blocklen * channels; i++ ) {
-		data[i] = 0.001 + increment * i;
-	}
+		let data = [ channels ];
+		
+		for ( let j = 0; j < channels; j++ ) {
+			data[j] = new Float32Array( blocklen );
+			for ( let i = 0; i < blocklen; i++ ) {
+				data[j][i] = 0.001 + increment * i;
+			}
+		}
 
-	let r = false;
+		let r = false;
 
-	r = globalThis["queue"].FreeQueuePush(data, blocklen);
-	if ( r ) {
-		console.log("FreeQueuePush() = true\n");
-	}
+		r = globalThis["queue"].FreeQueuePush(data, blocklen);
+		if ( r ) {
+			console.log("FreeQueuePush(); true\n");
+		} else {
+			console.log("FreeQueuePush(); false\n");		
+		}	
+
+		r = globalThis["queue"].PrintQueueInfo();
+		if ( r ) {
+			console.log("PrintQueueInfo(); true\n");
+		} else {
+			console.log("PrintQueueInfo(); false\n");		
+		}	
+
+	});
+
+        document.getElementById("startTest2").addEventListener("click", (e) => {
+
+	});
 
 	
     </script>

@@ -1,19 +1,3 @@
-/**
- * A shared storage for FreeQueue operation backed by SharedArrayBuffer.
- *
- * @typedef SharedRingBuffer
- * @property {Uint32Array} states Backed by SharedArrayBuffer.
- * @property {number} bufferLength The frame buffer length. Should be identical
- * throughout channels.
- * @property {Array<Float64Array>} channelData The length must be > 0.
- * @property {number} channelCount same with channelData.length
- */
-
-/**
- * A single-producer/single-consumer lock-free FIFO backed by SharedArrayBuffer.
- * In a typical pattern is that a worklet pulls the data from the queue and a
- * worker renders audio data to fill in the queue.
- */
 
 import initWasmFreeQueue from "./freequeue.asm.js";
 
@@ -21,20 +5,25 @@ class FreeQueue
 {
 		constructor(frequency, seconds, channels)
 		{
-			this.LFreeQueue = {};
+			this.LFreeQueue = {
+				setStatus: function (e) {
+					if (e !== "") {
+						console.log(e)
+					};
+				}
+			};
 
 			this.QueueFrequency = frequency;
 			this.QueueSeconds = seconds;
 			this.QueueChannels = channels;
 			this.CreatedFreeQueue = undefined;
-			this.isInit = false;
 
 			this.LFreeQueue.onRuntimeInitialized = () => { 				
-				this.LFreeQueue.callMain("");
-				console.log( "onRuntimeInitialized\n" );
 			};
 
-			initWasmFreeQueue( this.LFreeQueue ).then( async (LFreeQueue) => {
+			initWasmFreeQueue( this.LFreeQueue ).then( ( LFreeQueue ) => {
+				this.LFreeQueue.callMain("");
+
 				this.FQ_malloc = LFreeQueue.cwrap('FQ_malloc','number',[ 'number' ]);
 				this.FQ_remalloc = LFreeQueue.cwrap('FQ_realloc','number',[ 'number', 'number' ]);
 				this.FQ_free = LFreeQueue.cwrap('FQ_free','',[ 'number' ]);
@@ -50,25 +39,20 @@ class FreeQueue
 				this.FQ_FreeQueueGetWriteCounter = LFreeQueue.cwrap('FQ_FreeQueueGetWriteCounter','number',[ 'number' ]);
 
 				this.CreatedFreeQueue = this.FQ_FreeQueueCreate( this.QueueFrequency * this.QueueSeconds, this.QueueChannels );
-
-				this.isInit = true;
-
-				console.log( "initWasmFreeQueue\n" );
 			});
+
 		}
-		Wait() {
-			while ( true )
-			{
-				let id = setTimeout( function() {}, 100 );
-				clearTimeout( id );
-				if ( this.isInit == true ) {
-					break;
+		FreeQueuePush(data, blocklen) 
+		{
+			if ( this.CreatedFreeQueue === undefined ) return false;				
+			
+			let input = new Float32Array( this.QueueChannels * blocklen );
+
+			for ( let i = 0; i < this.QueueChannels; i++ ) {
+				for ( let j = 0; j < blocklen; j++ ) {
+					input[i * blocklen + j]	= data[i][j];
 				}
 			}
-		}
-		FreeQueuePush(input, blocklen) 
-		{
-			console.log( "FreeQueuePush\n" );
 
 			let nDataBytes = input.length * input.BYTES_PER_ELEMENT;
 			let dataPtr = this.FQ_malloc( nDataBytes );
@@ -87,8 +71,7 @@ class FreeQueue
 			let pointerHeap = new Uint8Array(this.LFreeQueue.HEAPU8.buffer, pointerPtr, nPointerBytes );
 			pointerHeap.set( new Uint8Array( pointers.buffer ) );
 
-			this.FQ_FreeQueuePush( this.CreatedFreeQueue, pointerHeap.byteOffset, this.QueueChannels );
-			this.PrintQueueInfo();
+			this.FQ_FreeQueuePush( this.CreatedFreeQueue, pointerHeap.byteOffset, blocklen );
 
 			this.FQ_free( pointerHeap.byteOffset );
 			this.FQ_free( dataHeap.byteOffset );
@@ -98,9 +81,11 @@ class FreeQueue
 	
 		PrintQueueInfo() 
 		{
-			console.log( "PrintQueueInfo\n" );
+			if ( this.CreatedFreeQueue === undefined ) return false;				
 
 			this.FQ_PrintQueueInfo( this.CreatedFreeQueue );
+
+			return true;
 		}
 	
 };

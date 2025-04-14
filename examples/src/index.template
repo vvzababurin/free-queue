@@ -20,7 +20,7 @@
 
 	globalThis["channels"] = 2;
 	globalThis["frequency"] = 44100;
-	globalThis["blocklen"] = 44100 / 25;
+	globalThis["blocklen"] = globalThis["frequency"] / 25;
 
 	globalThis["queue"] = new FreeQueue( globalThis["frequency"], 10, globalThis["channels"] );
 	await globalThis["queue"].Init();

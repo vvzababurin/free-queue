@@ -20,12 +20,13 @@
 
 	globalThis["channels"] = 2;
 	globalThis["frequency"] = 44100;
+	globalThis["blocklen"] = 44100 / 25;
 
 	globalThis["queue"] = new FreeQueue( globalThis["frequency"], 10, globalThis["channels"] );
 	
 	document.getElementById("startTest1").addEventListener("click", (e) => {
 		let increment = 0.0001;
-		let blocklen = 1764;
+		let blocklen = globalThis["blocklen"];
 		let channels = globalThis["channels"];
 
 		let data = [ channels ];
@@ -37,26 +38,16 @@
 			}
 		}
 
-		let r = false;
-
-		r = globalThis["queue"].FreeQueuePush(data, blocklen);
+		let r = globalThis["queue"].FreeQueuePush(data, blocklen);
 		if ( r ) {
 			console.log("FreeQueuePush(); true\n");
 		} else {
 			console.log("FreeQueuePush(); false\n");		
 		}	
-
-		r = globalThis["queue"].PrintQueueInfo();
-		if ( r ) {
-			console.log("PrintQueueInfo(); true\n");
-		} else {
-			console.log("PrintQueueInfo(); false\n");		
-		}	
-
 	});
 
         document.getElementById("startTest2").addEventListener("click", (e) => {
-		let blocklen = 1764;
+		let blocklen = globalThis["blocklen"];
 		let channels = globalThis["channels"];
 
 		let data = [ channels ];
@@ -77,21 +68,21 @@
 			}
 			console.log( str );
 		}
+	});
 
+        document.getElementById("startTest3").addEventListener("click", (e) => {
 		let r = globalThis["queue"].PrintQueueInfo();
 		if ( r ) {
 			console.log("PrintQueueInfo(); true\n");
 		} else {
 			console.log("PrintQueueInfo(); false\n");		
-		}	
-
+		}
 	});
 
-        document.getElementById("startTest3").addEventListener("click", (e) => {
-	});
-
+/*
         document.getElementById("startTest4").addEventListener("click", (e) => {
 	});
+*/
 	
     </script>
 </head>
@@ -99,8 +90,8 @@
 <body>
 	<button id="startTest1">FreeQueuePush</button>
 	<button id="startTest2">FreeQueuePull</button>
-	<button id="startTest3">PrintVarStack</button>
-	<button id="startTest4">PullData</button>
+	<button id="startTest3">PrintQueueInfo</button>
+<!--	<button id="startTest4">PullData</button> -->
 </body>
 
 </html>

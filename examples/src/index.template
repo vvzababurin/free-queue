@@ -63,9 +63,9 @@
 
 		blocklen = globalThis["queue"].FreeQueuePull(data, blocklen);
 		if ( blocklen > 0 ) {
-			console.log("FreeQueuePull(); data: " + r);
+			console.log("FreeQueuePull(); data: " + blocklen);
 		} else {
-			console.log("FreeQueuePull(); data: " + r);		
+			console.log("FreeQueuePull(); data: " + blocklen);		
 		}	
 
 		for ( let j = 0; j < channels; j++ ) {
@@ -75,7 +75,7 @@
 			for ( let i = 0; i < blocklen; i++ ) {
 				str = str + data[j][i] + "; ";
 			}
-			console.log( str + "; " );
+			console.log( str );
 		}
 
 		let r = globalThis["queue"].PrintQueueInfo();

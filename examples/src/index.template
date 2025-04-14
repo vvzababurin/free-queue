@@ -18,12 +18,15 @@
     <script defer type="module">
 	import FreeQueue from "./js/freequeue.js";
 
-	globalThis["queue"] = new FreeQueue( 44100, 10, 2 );
+	globalThis["channels"] = 2;
+	globalThis["frequency"] = 44100;
 
+	globalThis["queue"] = new FreeQueue( globalThis["frequency"], 10, globalThis["channels"] );
+	
 	document.getElementById("startTest1").addEventListener("click", (e) => {
 		let increment = 0.0001;
 		let blocklen = 1764;
-		let channels = 2;
+		let channels = globalThis["channels"];
 
 		let data = [ channels ];
 		
@@ -53,16 +56,49 @@
 	});
 
         document.getElementById("startTest2").addEventListener("click", (e) => {
+		let blocklen = 1764;
+		let channels = globalThis["channels"];
+
+		let data = [ channels ];
+
+		blocklen = globalThis["queue"].FreeQueuePull(data, blocklen);
+		if ( blocklen > 0 ) {
+			console.log("FreeQueuePull(); data: " + r);
+		} else {
+			console.log("FreeQueuePull(); data: " + r);		
+		}	
+
+		for ( let j = 0; j < channels; j++ ) {
+			if ( blocklen > 100 ) blocklen = 100;
+			let str = "";
+			console.log( "channel: " + j );
+			for ( let i = 0; i < blocklen; i++ ) {
+				str = str + data[j][i] + "; ";
+			}
+			console.log( str + "; " );
+		}
+
+		let r = globalThis["queue"].PrintQueueInfo();
+		if ( r ) {
+			console.log("PrintQueueInfo(); true\n");
+		} else {
+			console.log("PrintQueueInfo(); false\n");		
+		}	
 
 	});
 
+        document.getElementById("startTest3").addEventListener("click", (e) => {
+	});
+
+        document.getElementById("startTest4").addEventListener("click", (e) => {
+	});
 	
     </script>
 </head>
 
 <body>
-	<button id="startTest1">FQ_FreeQueueCreate</button>
-	<button id="startTest2">DestroyThreads</button>
+	<button id="startTest1">FreeQueuePush</button>
+	<button id="startTest2">FreeQueuePull</button>
 	<button id="startTest3">PrintVarStack</button>
 	<button id="startTest4">PullData</button>
 </body>

@@ -66,8 +66,7 @@ class FreeQueue
 
 			for ( let i = 0; i < this.QueueChannels; i++ ) {
 				let output = new Float32Array(this.LFreeQueue.HEAPF32.buffer, pointers[i], blocklen);
-				data[i] = new Float32Array(blocklen);
-				data[i].set( output.buffer );
+				data[i] = new Float32Array(output);
 			}
 
 			for (let i = 0; i < this.QueueChannels; i++) {

@@ -71,7 +71,7 @@
 		for ( let j = 0; j < channels; j++ ) {
 			if ( blocklen > 100 ) blocklen = 100;
 			let str = "";
-			console.log( "channel: " + j );
+			console.log( "received data channel: " + j );
 			for ( let i = 0; i < blocklen; i++ ) {
 				str = str + data[j][i] + "; ";
 			}

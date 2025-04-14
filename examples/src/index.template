@@ -40,11 +40,11 @@
 		}
 
 		let r = globalThis["queue"].FreeQueuePush(data, blocklen);
-		if ( r ) {
-			console.log("FreeQueuePush(); true\n");
+		if ( !r ) {
+			console.log("FreeQueuePush: failed");
 		} else {
-			console.log("FreeQueuePush(); false\n");		
-		}	
+			console.log("FreeQueuePush: success");
+		}
 	});
 
         document.getElementById("startTest2").addEventListener("click", (e) => {
@@ -55,29 +55,29 @@
 
 		blocklen = globalThis["queue"].FreeQueuePull(data, blocklen);
 		if ( blocklen > 0 ) {
-			console.log("FreeQueuePull(); data: " + blocklen);
-		} else {
-			console.log("FreeQueuePull(); data: " + blocklen);		
-		}	
-
-		for ( let j = 0; j < channels; j++ ) {
-			if ( blocklen > 100 ) blocklen = 100;
-			let str = "";
-			console.log( "received data channel: " + j );
-			for ( let i = 0; i < blocklen; i++ ) {
-				str = str + data[j][i] + "; ";
+			console.log("FreeQueuePull(); [ data: " + blocklen + " ]");
+			for ( let j = 0; j < channels; j++ ) {
+				if ( blocklen > 100 ) blocklen = 100;
+				let str = "";
+				console.log( "Received Data: [ channel: " + j + " ]" );
+				for ( let i = 0; i < blocklen; i++ ) {
+					str = str + data[j][i] + "; ";
+				}
+				console.log( str );
 			}
-			console.log( str );
-		}
+		} else {
+			console.log("FreeQueuePull: failed");
+		}	
 	});
 
         document.getElementById("startTest3").addEventListener("click", (e) => {
 		let r = globalThis["queue"].PrintQueueInfo();
-		if ( r ) {
-			console.log("PrintQueueInfo(); true\n");
+		if ( !r ) {
+			console.log("PrintQueueInfo: failed\n");		
 		} else {
-			console.log("PrintQueueInfo(); false\n");		
+			console.log("PrintQueueInfo: success");
 		}
+
 	});
 
 /*

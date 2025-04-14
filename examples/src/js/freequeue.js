@@ -18,12 +18,19 @@ class FreeQueue
 			this.QueueChannels = channels;
 			this.CreatedFreeQueue = undefined;
 
-			this.LFreeQueue.onRuntimeInitialized = () => { 				
+			/* run before initialize */
+			this.LFreeQueue.onRuntimeInitialized = () => { 
+				this.LFreeQueue.callMain("");
+				console.log("LFreeQueue: onRuntimeInitialized");
 			};
 
-			initWasmFreeQueue( this.LFreeQueue ).then( ( LFreeQueue ) => {
-				this.LFreeQueue.callMain("");
+			console.log("LFreeQueue: constructor");
+		}
 
+		async Init() {
+
+			/* run in the end */
+			await initWasmFreeQueue( this.LFreeQueue ).then( ( LFreeQueue ) => {
 				this.FQ_malloc = LFreeQueue.cwrap('FQ_malloc','number',[ 'number' ]);
 				this.FQ_remalloc = LFreeQueue.cwrap('FQ_realloc','number',[ 'number', 'number' ]);
 				this.FQ_free = LFreeQueue.cwrap('FQ_free','',[ 'number' ]);
@@ -41,8 +48,10 @@ class FreeQueue
 				this.FQ_FreeQueueGetWriteCounter = LFreeQueue.cwrap('FQ_FreeQueueGetWriteCounter','number',[ 'number' ]);
 
 				this.CreatedFreeQueue = this.FQ_FreeQueueCreate( this.QueueFrequency * this.QueueSeconds, this.QueueChannels );
+				console.log("LFreeQueue: initWasmFreeQueue");
 			});
 
+			console.log("LFreeQueue: Init()");
 		}
 
 		FreeQueuePull(data, blocklen) 

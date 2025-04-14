@@ -23,6 +23,7 @@
 	globalThis["blocklen"] = 44100 / 25;
 
 	globalThis["queue"] = new FreeQueue( globalThis["frequency"], 10, globalThis["channels"] );
+	await globalThis["queue"].Init();
 	
 	document.getElementById("startTest1").addEventListener("click", (e) => {
 		let increment = 0.0001;

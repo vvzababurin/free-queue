@@ -21,6 +21,7 @@ class FreeQueue
 			/* run before initialize */
 			this.LFreeQueue.onRuntimeInitialized = () => { 
 				this.LFreeQueue.callMain("");
+				this.LFreeQueue.setStatus( "onRuntimeInitialized();" );
 			};
 		}
 

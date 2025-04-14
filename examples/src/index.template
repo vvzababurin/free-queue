@@ -55,11 +55,11 @@
 
 		blocklen = globalThis["queue"].FreeQueuePull(data, blocklen);
 		if ( blocklen > 0 ) {
-			console.log("FreeQueuePull(); [ data: " + blocklen + " ]");
+			console.log("FreeQueuePull: [ data = " + blocklen + " ]");
 			for ( let j = 0; j < channels; j++ ) {
 				if ( blocklen > 100 ) blocklen = 100;
 				let str = "";
-				console.log( "Received Data: [ channel: " + j + " ]" );
+				console.log( "ReceivedData: [ channel = " + j + " ]" );
 				for ( let i = 0; i < blocklen; i++ ) {
 					str = str + data[j][i] + "; ";
 				}

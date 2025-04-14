@@ -59,14 +59,14 @@ class FreeQueue
 			let nPointerBytes = pointers.length * pointers.BYTES_PER_ELEMENT
 			let pointerPtr = this.FQ_malloc( nPointerBytes );
 
-			let pointerHeap = new Uint8Array(this.LFreeQueue.HEAPU8.buffer, pointerPtr, nPointerBytes );
+			let pointerHeap = new Uint8Array( this.LFreeQueue.HEAPU8.buffer, pointerPtr, nPointerBytes );
 			pointerHeap.set( new Uint8Array( pointers.buffer ) );
 
-			blocklen = this.FQ_FreeQueuePull(this.CreatedFreeQueue, pointerHeap.byteOffset, blocklen, true);
+			blocklen = this.FQ_FreeQueuePull( this.CreatedFreeQueue, pointerHeap.byteOffset, blocklen, true );
 
 			for ( let i = 0; i < this.QueueChannels; i++ ) {
-				let output = new Float32Array(this.LFreeQueue.HEAPF32.buffer, pointers[i], blocklen);
-				data[i] = new Float32Array(output);
+				let output = new Float32Array( this.LFreeQueue.HEAPF32.buffer, pointers[i], blocklen );
+				data[i] = new Float32Array( output );
 			}
 
 			for (let i = 0; i < this.QueueChannels; i++) {
@@ -99,7 +99,7 @@ class FreeQueue
 				pointers[i] = dataPtr;
 			}
 
-			let pointerHeap = new Uint8Array(this.LFreeQueue.HEAPU8.buffer, pointerPtr, nPointerBytes );
+			let pointerHeap = new Uint8Array( this.LFreeQueue.HEAPU8.buffer, pointerPtr, nPointerBytes );
 			pointerHeap.set( new Uint8Array( pointers.buffer ) );
 
 			this.FQ_FreeQueuePush( this.CreatedFreeQueue, pointerHeap.byteOffset, blocklen );

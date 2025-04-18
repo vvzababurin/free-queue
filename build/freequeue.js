@@ -29,7 +29,7 @@ class FreeQueue
 			/* run in the end */
 			await initWasmFreeQueue( this.LFreeQueue ).then( ( LFreeQueue ) => {
 				this.FQ_malloc = LFreeQueue.cwrap('FQ_malloc','number',[ 'number' ]);
-				this.FQ_remalloc = LFreeQueue.cwrap('FQ_realloc','number',[ 'number', 'number' ]);
+				this.FQ_realloc = LFreeQueue.cwrap('FQ_realloc','number',[ 'number', 'number' ]);
 				this.FQ_free = LFreeQueue.cwrap('FQ_free','',[ 'number' ]);
 
 				this.FQ_FreeQueueCreate = LFreeQueue.cwrap('FQ_FreeQueueCreate','number',[ 'number', 'number' ]);

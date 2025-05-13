@@ -13,10 +13,10 @@ class FreeQueue
 				}
 			};
 
-			this.QueueFrequency = frequency;
-			this.QueueSeconds = seconds;
-			this.QueueChannels = channels;
-			this.CreatedFreeQueue = undefined;
+			this.queueFrequency = frequency;
+			this.queueSeconds = seconds;
+			this.queueChannels = channels;
+			this.createdFreeQueue = undefined;
 
 			/* run before initialize */
 			this.LFreeQueue.onRuntimeInitialized = () => { 
@@ -28,9 +28,6 @@ class FreeQueue
 		async Init() {
 			/* run in the end */
 			await initWasmFreeQueue( this.LFreeQueue ).then( ( LFreeQueue ) => {
-				this.FQ_malloc = LFreeQueue.cwrap('FQ_malloc','number',[ 'number' ]);
-				this.FQ_realloc = LFreeQueue.cwrap('FQ_realloc','number',[ 'number', 'number' ]);
-				this.FQ_free = LFreeQueue.cwrap('FQ_free','',[ 'number' ]);
 
 				this.FQ_FreeQueueCreate = LFreeQueue.cwrap('FQ_FreeQueueCreate','number',[ 'number', 'number' ]);
 
@@ -44,7 +41,11 @@ class FreeQueue
 				this.FQ_FreeQueueGetReadCounter = LFreeQueue.cwrap('FQ_FreeQueueGetReadCounter','number',[ 'number' ]);
 				this.FQ_FreeQueueGetWriteCounter = LFreeQueue.cwrap('FQ_FreeQueueGetWriteCounter','number',[ 'number' ]);
 
-				this.CreatedFreeQueue = this.FQ_FreeQueueCreate( this.QueueFrequency * this.QueueSeconds, this.QueueChannels );
+				this.FQ_malloc = LFreeQueue.cwrap('FQ_malloc','number',[ 'number' ]);
+				this.FQ_realloc = LFreeQueue.cwrap('FQ_realloc','number',[ 'number', 'number' ]);
+				this.FQ_free = LFreeQueue.cwrap('FQ_free','',[ 'number' ]);
+
+				this.createdFreeQueue = this.FQ_FreeQueueCreate( this.queueFrequency * this.queueSeconds, this.queueChannels );
 			});
 
 			this.LFreeQueue.setStatus( "Init();" );
@@ -52,10 +53,10 @@ class FreeQueue
 
 		FreeQueuePull(data, blocklen) 
 		{
-			if ( this.CreatedFreeQueue === undefined ) return 0;
+			if ( this.createdFreeQueue === undefined ) return 0;
 
-			let pointers = new Uint32Array( this.QueueChannels );
-			for (let i = 0; i < this.QueueChannels; i++) {
+			let pointers = new Uint32Array( this.queueChannels );
+			for (let i = 0; i < this.queueChannels; i++) {
 				let nDataBytes = blocklen * Float32Array.BYTES_PER_ELEMENT;
 				let dataPtr = this.FQ_malloc( nDataBytes );				
 				pointers[i] = dataPtr;
@@ -67,14 +68,14 @@ class FreeQueue
 			let pointerHeap = new Uint8Array( this.LFreeQueue.HEAPU8.buffer, pointerPtr, nPointerBytes );
 			pointerHeap.set( new Uint8Array( pointers.buffer ) );
 
-			blocklen = this.FQ_FreeQueuePull( this.CreatedFreeQueue, pointerHeap.byteOffset, blocklen, true );
+			blocklen = this.FQ_FreeQueuePull( this.createdFreeQueue, pointerHeap.byteOffset, blocklen, true );
 
-			for ( let i = 0; i < this.QueueChannels; i++ ) {
+			for ( let i = 0; i < this.queueChannels; i++ ) {
 				let output = new Float32Array( this.LFreeQueue.HEAPF32.buffer, pointers[i], blocklen );
 				data[i] = new Float32Array( output );
 			}
 
-			for (let i = 0; i < this.QueueChannels; i++) {
+			for (let i = 0; i < this.queueChannels; i++) {
 				this.FQ_free( pointers[i] );
 			}
 
@@ -86,14 +87,14 @@ class FreeQueue
 
 		FreeQueuePush(data, blocklen) 
 		{
-			if ( this.CreatedFreeQueue === undefined ) return false;				
+			if ( this.createdFreeQueue === undefined ) return false;				
 			
-			let pointers = new Uint32Array( this.QueueChannels );
+			let pointers = new Uint32Array( this.queueChannels );
 
-			let nPointerBytes = this.QueueChannels * pointers.BYTES_PER_ELEMENT
+			let nPointerBytes = this.queueChannels * pointers.BYTES_PER_ELEMENT
 			let pointerPtr = this.FQ_malloc( nPointerBytes );
 
-			for (let i = 0; i < this.QueueChannels; i++) {
+			for (let i = 0; i < this.queueChannels; i++) {
 
 				let nDataBytes = blocklen * data[i].BYTES_PER_ELEMENT;
 				let dataPtr = this.FQ_malloc( nDataBytes );
@@ -107,9 +108,9 @@ class FreeQueue
 			let pointerHeap = new Uint8Array( this.LFreeQueue.HEAPU8.buffer, pointerPtr, nPointerBytes );
 			pointerHeap.set( new Uint8Array( pointers.buffer ) );
 
-			this.FQ_FreeQueuePush( this.CreatedFreeQueue, pointerHeap.byteOffset, blocklen );
+			this.FQ_FreeQueuePush( this.createdFreeQueue, pointerHeap.byteOffset, blocklen );
 
-			for (let i = 0; i < this.QueueChannels; i++) {
+			for (let i = 0; i < this.queueChannels; i++) {
 				this.FQ_free( pointers[i] );
 			}
 
@@ -120,9 +121,9 @@ class FreeQueue
 	
 		PrintQueueInfo() 
 		{
-			if ( this.CreatedFreeQueue === undefined ) return false;				
+			if ( this.createdFreeQueue === undefined ) return false;				
 
-			this.FQ_PrintQueueInfo( this.CreatedFreeQueue );
+			this.FQ_PrintQueueInfo( this.createdFreeQueue );
 
 			return true;
 		}

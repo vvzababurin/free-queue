@@ -1,8 +1,8 @@
 
 #pragma once
 
-#ifndef __AIENGINE_FREEQUEUE__
-#define __AIENGINE_FREEQUEUE__
+#ifndef __MASTERAIENGINE_FREEQUEUE__
+#define __MASTERAIENGINE_FREEQUEUE__
 
 #include <atomic>
 #include <stdio.h>
@@ -56,5 +56,6 @@ void FQ_PrintQueueAddresses(struct FQ_FreeQueue *queue);
 }
 #endif
 
+#endif // __MASTERAIENGINE_FREEQUEUE__
 
-#endif // __AIENGINE_FREEQUEUE__
+
